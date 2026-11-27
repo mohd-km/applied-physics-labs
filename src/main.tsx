@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './shell/shell.css';
 import { Shell, type ShellConfig } from './shell/Shell';
+import DefaultTab from './modules/engineering/Module';
 
 const T1 = 'engineering, energy & space';
 const T2 = 'matter & quantum';
@@ -17,6 +18,7 @@ const config: ShellConfig = {
     {
       id: 'engineering', track: T1, label: 'Engineering', sub: 'BOM · factory · rocket $/kg', scope: 'engineering',
       provenance: [{ kind: 'model', label: 'BOM, line-throughput & Tsiolkovsky equations' }, { kind: 'real', label: 'approximate public commodity prices' }],
+      component: DefaultTab,
       load: () => import('./modules/engineering/Module'),
     },
     {
