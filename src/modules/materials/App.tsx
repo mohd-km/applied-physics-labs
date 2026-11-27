@@ -165,9 +165,9 @@ export const App: React.FC = () => {
       <header className="site-header">
         <div className="header-inner">
           <div className="brand-block">
-            <h2 className="module-heading">band gap vs hull stability screener</h2>
+            <h2 className="module-heading">Material screener: right electrical behaviour, stable, buildable</h2>
             <p className="site-subtitle">
-              Live Pareto frontier over {MATERIALS_DATA.length} known crystals. Band gaps follow literature values; hull energies, abundance and supply-risk scores are hand-curated approximations, not a live Materials Project pull.
+              Best trade-offs (Pareto frontier) across {MATERIALS_DATA.length} known crystals. Band gaps come from published measurements; stability, abundance and supply-risk scores are hand-curated estimates, not a live Materials Project database pull.
             </p>
           </div>
         </div>
@@ -180,15 +180,15 @@ export const App: React.FC = () => {
             </strong>
           </div>
           <div className="kpi-card kpi-card-accent">
-            <span className="kpi-label">Pareto Frontier</span>
+            <span className="kpi-label">Best trade-offs (Pareto)</span>
             <strong className="kpi-value kpi-accent">{kpis.paretoCount}</strong>
           </div>
           <div className="kpi-card">
-            <span className="kpi-label">Near-Hull (&le; 0.025 eV/at)</span>
+            <span className="kpi-label">Stable enough to make (E_hull &le; 0.025)</span>
             <strong className="kpi-value">{kpis.stableCount}</strong>
           </div>
           <div className="kpi-card">
-            <span className="kpi-label">Earth-Abundant</span>
+            <span className="kpi-label">Common elements only</span>
             <strong className="kpi-value kpi-success">{kpis.abundantCount}</strong>
           </div>
         </div>
@@ -198,7 +198,7 @@ export const App: React.FC = () => {
         {/* Application Target Presets */}
         <section className="presets-bar" aria-label="Application target presets">
           <div className="presets-header-row">
-            <span className="presets-label">Target Presets</span>
+            <span className="presets-label">Pick a job for the material</span>
             <button
               type="button"
               className="mobile-filter-toggle"

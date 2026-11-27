@@ -21,26 +21,26 @@ const WEIGHT_PRESETS: { id: string; label: string; profile: WeightProfile }[] = 
   },
   {
     id: 'cns',
-    label: 'CNS / Brain',
+    label: 'Brain first',
     profile: { oralBioavailability: 20, bbbPermeability: 45, pathwayAffinity: 20, safety: 15 },
   },
   {
     id: 'oral-safe',
-    label: 'Oral Repurposing',
+    label: 'Safe existing pills',
     profile: { oralBioavailability: 40, bbbPermeability: 10, pathwayAffinity: 15, safety: 35 },
   },
   {
     id: 'potency',
-    label: 'Max Affinity',
+    label: 'Strongest on target',
     profile: { oralBioavailability: 15, bbbPermeability: 10, pathwayAffinity: 55, safety: 20 },
   },
 ];
 
 const SLIDER_META: { key: keyof WeightProfile; label: string; short: string }[] = [
-  { key: 'oralBioavailability', label: 'Oral Bioavailability', short: 'Ro5 + Veber' },
-  { key: 'bbbPermeability', label: 'BBB Permeability', short: 'CNS MPO' },
-  { key: 'pathwayAffinity', label: 'Pathway Affinity', short: 'pIC50 + DrugAge' },
-  { key: 'safety', label: 'Safety & Maturity', short: 'Phase + QED' },
+  { key: 'oralBioavailability', label: 'Works as a pill', short: 'survives the gut, gets into the blood' },
+  { key: 'bbbPermeability', label: 'Reaches the brain', short: 'crosses the brain’s filter' },
+  { key: 'pathwayAffinity', label: 'Hits its target hard', short: 'lab strength plus animal lifespan gains' },
+  { key: 'safety', label: 'Safety and trial track record', short: 'how far it got in humans' },
 ];
 
 export const WeightingRanker: React.FC<WeightingRankerProps> = ({
@@ -73,9 +73,11 @@ export const WeightingRanker: React.FC<WeightingRankerProps> = ({
     <section className="card ranker-card" aria-label="Custom Weighting Sliders and Live Ranking">
       <div className="panel-header">
         <div>
-          <h2 className="panel-title">Custom Weighting Ranker</h2>
+          <h2 className="panel-title">Decide what matters, see the ranking change</h2>
           <p className="panel-subtitle">
-            Drag sliders to re-rank all {rankedCompounds.length} compounds live.
+            Four sliders set how much you care about each quality. The {rankedCompounds.length}{' '}
+            molecules below re-sort as you drag. Percentages show each quality's share of the
+            final score.
           </p>
         </div>
         <div className="preset-row" role="group" aria-label="Weighting profile presets">
@@ -126,8 +128,10 @@ export const WeightingRanker: React.FC<WeightingRankerProps> = ({
       {/* Live Top-8 Visual Leaderboard */}
       <div className="leaderboard-block">
         <div className="leaderboard-head">
-          <span className="field-label">Live Top Ranked Candidates</span>
-          <span className="leaderboard-caption">Tap A / B to load radar</span>
+          <span className="field-label">Top molecules under your weights</span>
+          <span className="leaderboard-caption">
+            Tap a name for the full profile, or A / B to put it on the comparison chart
+          </span>
         </div>
 
         <div className="leaderboard-list" role="list">
@@ -197,23 +201,36 @@ export const WeightingRanker: React.FC<WeightingRankerProps> = ({
 
       {/* Collapsible Scoring Methodology Drawer */}
       <details className="editorial-details">
-        <summary>Scoring formulas &amp; ADMET criteria</summary>
+        <summary>How each of the four scores is worked out</summary>
         <div className="details-body">
           <p>
-            <strong>Oral Bioavailability:</strong> 45% Lipinski Ro5 margin + 30% Veber rules
-            (TPSA &le; 140 A&sup2;, rotatable bonds &le; 10) + 25% QED.
+            Every score is out of 100 and comes from published rules of thumb applied to the
+            molecule's measured properties. Nothing here is trained or fitted.
           </p>
           <p>
-            <strong>BBB Permeability:</strong> Wager CNS MPO weighting across TPSA (&le; 60 A&sup2;
-            optimal), MW (&le; 360 Da), cLogP (1.0&ndash;4.0), and HBD (&le; 1).
+            <strong>Works as a pill:</strong> 45% how well it passes the rule of five, a quick
+            checklist of whether a molecule could work as a pill (weight under 500 daltons,
+            greasiness under 5, few hydrogen-bond donors and acceptors) + 30% Veber's rules
+            (water-friendly surface, or TPSA, at most 140 square angstroms and at most 10
+            bendable bonds, so it is not too floppy) + 25% drug-likeness (QED), a 0 to 1 score
+            for how much it resembles normal approved drugs.
           </p>
           <p>
-            <strong>Pathway Affinity:</strong> 75% normalized ChEMBL potency (pIC50/pKi/pEC50) +
-            25% DrugAge median lifespan delta.
+            <strong>Reaches the brain:</strong> the Wager CNS MPO scoring, which rewards a small
+            water-friendly surface (TPSA at most 60), light weight (at most 360 daltons),
+            middling greasiness (logP 1 to 4) and at most one hydrogen-bond donor. Those are the
+            traits of molecules that get past the brain's filter.
           </p>
           <p>
-            <strong>Safety &amp; Maturity:</strong> 52% human clinical development phase + 48%
-            physicochemical safety margin (QED and Ro5 compliance).
+            <strong>Hits its target hard:</strong> 75% lab strength from the ChEMBL database of
+            measured drug activity (pIC50, pKi or pEC50: each +1 means ten times stronger) + 25%
+            the extra lifespan seen in treated animals, from the DrugAge database of published
+            ageing studies.
+          </p>
+          <p>
+            <strong>Safety and trial track record:</strong> 52% how far it got in human trials,
+            from preclinical up to approved + 48% a chemistry safety margin from drug-likeness
+            and the pill checklist.
           </p>
         </div>
       </details>

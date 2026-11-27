@@ -33,21 +33,21 @@ export const App: React.FC = () => {
             className={`nav-tab ${view === 'both' ? 'active' : ''}`}
             onClick={() => setView('both')}
           >
-            Dispatch + transmission
+            Both labs
           </button>
           <button
             type="button"
             className={`nav-tab ${view === 'grid' ? 'active' : ''}`}
             onClick={() => setView('grid')}
           >
-            <span className="nav-tab-num">01</span> Duck-curve dispatch
+            <span className="nav-tab-num">01</span> A day on the grid
           </button>
           <button
             type="button"
             className={`nav-tab ${view === 'hv' ? 'active' : ''}`}
             onClick={() => setView('hv')}
           >
-            <span className="nav-tab-num">02</span> HVAC vs HVDC loss
+            <span className="nav-tab-num">02</span> AC vs DC power lines
           </button>
         </nav>
       </div>

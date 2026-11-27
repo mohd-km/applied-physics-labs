@@ -35,12 +35,12 @@ interface RadarAxis {
 }
 
 const RADAR_AXES: RadarAxis[] = [
-  { key: 'oralBioavailability', label: 'Oral Bioavailability', shortLabel: 'Oral' },
-  { key: 'bbbPermeability', label: 'BBB Permeability', shortLabel: 'BBB' },
-  { key: 'pathwayAffinity', label: 'Pathway Affinity', shortLabel: 'Affinity' },
-  { key: 'safety', label: 'Safety & Maturity', shortLabel: 'Safety' },
-  { key: 'qedNorm', label: 'Drug-Likeness (QED)', shortLabel: 'QED' },
-  { key: 'drugAgeNorm', label: 'DrugAge Signal', shortLabel: 'DrugAge' },
+  { key: 'oralBioavailability', label: 'Works as a pill (oral bioavailability)', shortLabel: 'Pill' },
+  { key: 'bbbPermeability', label: 'Reaches the brain (blood-brain barrier)', shortLabel: 'Brain' },
+  { key: 'pathwayAffinity', label: 'Hits its target hard (pathway affinity)', shortLabel: 'Target' },
+  { key: 'safety', label: 'Safety and how far it got in trials', shortLabel: 'Safety' },
+  { key: 'qedNorm', label: 'Looks like a normal drug (QED)', shortLabel: 'Drug-like' },
+  { key: 'drugAgeNorm', label: 'Made animals live longer (DrugAge)', shortLabel: 'Lifespan' },
 ];
 
 export const MoleculeComparator: React.FC<MoleculeComparatorProps> = ({
@@ -93,12 +93,14 @@ export const MoleculeComparator: React.FC<MoleculeComparatorProps> = ({
 
   const metricRows: {
     label: string;
+    hint: string;
     aVal: string;
     bVal: string;
     winner: 'a' | 'b' | 'tie';
   }[] = [
     {
-      label: 'Composite Score',
+      label: 'Overall score',
+      hint: 'your six qualities blended with your slider weights, out of 100',
       aVal: scoresA.composite.toFixed(1),
       bVal: scoresB.composite.toFixed(1),
       winner:
@@ -109,7 +111,8 @@ export const MoleculeComparator: React.FC<MoleculeComparatorProps> = ({
           : 'tie',
     },
     {
-      label: 'Oral Bioavail.',
+      label: 'Works as a pill',
+      hint: 'could survive the gut and get into the blood, out of 100',
       aVal: `${scoresA.oralBioavailability}`,
       bVal: `${scoresB.oralBioavailability}`,
       winner:
@@ -120,7 +123,8 @@ export const MoleculeComparator: React.FC<MoleculeComparatorProps> = ({
           : 'tie',
     },
     {
-      label: 'BBB Perm.',
+      label: 'Reaches the brain',
+      hint: 'chance of crossing the brain’s filter (blood-brain barrier), out of 100',
       aVal: `${scoresA.bbbPermeability}`,
       bVal: `${scoresB.bbbPermeability}`,
       winner:
@@ -131,25 +135,29 @@ export const MoleculeComparator: React.FC<MoleculeComparatorProps> = ({
           : 'tie',
     },
     {
-      label: 'Potency',
+      label: 'Strength on its target',
+      hint: 'lab potency (pIC50 / pKi / pEC50): higher means a smaller dose does the job, each +1 means ten times stronger',
       aVal: `${molA.potency.toFixed(1)} ${molA.affinityMetric}`,
       bVal: `${molB.potency.toFixed(1)} ${molB.affinityMetric}`,
       winner: molA.potency > molB.potency ? 'a' : molB.potency > molA.potency ? 'b' : 'tie',
     },
     {
-      label: 'MW / TPSA',
+      label: 'Size and greasiness',
+      hint: 'weight of one molecule (MW, in daltons) and how much of its surface is water-friendly (TPSA)',
       aVal: `${molA.mw.toFixed(0)} Da · ${molA.tpsa.toFixed(0)} A²`,
       bVal: `${molB.mw.toFixed(0)} Da · ${molB.tpsa.toFixed(0)} A²`,
       winner: 'tie',
     },
     {
-      label: 'Ro5 / Phase',
-      aVal: `${ro5A.violations} viol · ${molA.clinicalPhase}`,
-      bVal: `${ro5B.violations} viol · ${molB.clinicalPhase}`,
+      label: 'Pill checklist and trial stage',
+      hint: 'failed boxes on the rule of five, a quick checklist of whether a molecule could work as a pill (0 or 1 is fine), then how far it got in human trials',
+      aVal: `${ro5A.violations} failed · ${molA.clinicalPhase}`,
+      bVal: `${ro5B.violations} failed · ${molB.clinicalPhase}`,
       winner: 'tie',
     },
     {
-      label: 'DrugAge Delta',
+      label: 'Extra lifespan in animals',
+      hint: 'how much longer treated animals lived in published studies (DrugAge database)',
       aVal: `+${molA.drugAgeDeltaPct}%`,
       bVal: `+${molB.drugAgeDeltaPct}%`,
       winner:
@@ -165,9 +173,10 @@ export const MoleculeComparator: React.FC<MoleculeComparatorProps> = ({
     <section className="card comparator-card" aria-label="Side-by-Side 2-Molecule Radar Comparator">
       <div className="panel-header">
         <div>
-          <h2 className="panel-title">2-Molecule Radar Comparator</h2>
+          <h2 className="panel-title">Compare two molecules</h2>
           <p className="panel-subtitle">
-            Overlay ADMET, potency, and DrugAge profiles side by side.
+            Two shapes on one chart, six qualities each. The bigger the shape, the better that
+            molecule looks on these six. Hover or tap a corner to read both numbers.
           </p>
         </div>
         <button
@@ -415,7 +424,7 @@ export const MoleculeComparator: React.FC<MoleculeComparatorProps> = ({
       {/* Side-by-Side Numeric Comparison Table */}
       <div className="compare-grid-table">
         <div className="compare-head-row">
-          <span>Metric</span>
+          <span>What is measured</span>
           <button type="button" className="compare-mol-btn accent-ink" onClick={() => onInspect(molA)}>
             {molA.name}
           </button>
@@ -425,7 +434,10 @@ export const MoleculeComparator: React.FC<MoleculeComparatorProps> = ({
         </div>
         {metricRows.map((row) => (
           <div key={row.label} className="compare-row">
-            <span className="compare-metric">{row.label}</span>
+            <span className="compare-metric">
+              {row.label}
+              <small className="compare-hint">{row.hint}</small>
+            </span>
             <span className={`compare-val mono-num ${row.winner === 'a' ? 'win-a' : ''}`}>
               {row.aVal}
             </span>

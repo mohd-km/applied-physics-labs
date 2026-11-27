@@ -782,3 +782,16 @@ input[type='range']::-moz-range-thumb {
   .nav-tabs::-webkit-scrollbar, .preset-strip::-webkit-scrollbar { display: none; }
   .nav-tab, .preset-btn { flex: 0 0 auto; white-space: nowrap; }
 }
+
+/* Plain-English hints placed beside jargon */
+.plain-hint {
+  margin: 4px 0 0;
+  max-width: 100%;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-muted, #6b6b68);
+  overflow-wrap: anywhere;
+}
+.kpi-card .plain-hint { margin-top: 6px; }
+.control-group .plain-hint { margin: 2px 0 6px; }
+.section-desc + .plain-hint { max-width: 68ch; }

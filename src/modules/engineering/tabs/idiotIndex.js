@@ -60,7 +60,7 @@ const PRESETS = [
   },
   {
     id: 'custom',
-    label: 'Custom BOM',
+    label: 'Your own parts list',
     category: 'Custom',
     finishedPrice: 480,
     note: 'Enter your own raw commodities and market quote to measure how much margin sits above the physics floor.',
@@ -90,8 +90,8 @@ function diagnose(index, rawCost, finishedPrice, presetNote) {
   if (rawCost <= 0) {
     return {
       tone: 'warn',
-      tag: 'Add Raw Materials',
-      text: 'Add at least one commodity line with positive mass and price to compute the physics floor.'
+      tag: 'Add raw materials',
+      text: 'Add at least one commodity line with positive mass and price to work out the raw material cost.'
     };
   }
   const targetPrice = rawCost * 2.2;
@@ -99,28 +99,28 @@ function diagnose(index, rawCost, finishedPrice, presetNote) {
   if (index <= 2.2) {
     return {
       tone: 'success',
-      tag: 'Physics-Tight (< 2.2x)',
+      tag: 'Close to raw cost (under 2.2x)',
       text: 'Cost is already close to commodity metal. Further savings require changing the material or physics architecture itself.'
     };
   }
   if (index <= 5.0) {
     return {
       tone: 'accent',
-      tag: 'Manufacturable (2.2x - 5x)',
-      text: `Reasonable industrial multiple, with ~${formatMoney(savings)} of vertical integration and tooling upside remaining. ${presetNote || ''}`.trim()
+      tag: 'Sensible markup (2.2x to 5x)',
+      text: `Reasonable industrial multiple, with ~${formatMoney(savings)} still to save by making more in-house and better tooling. ${presetNote || ''}`.trim()
     };
   }
   if (index <= 15.0) {
     return {
       tone: 'warn',
-      tag: 'High Arbitrage (5x - 15x)',
+      tag: 'Heavy markup (5x to 15x)',
       text: `Supplier markups and slow process steps dominate cost. Bringing fabrication in-house targets ${formatMoney(targetPrice)} (a ${(index / 2.2).toFixed(1)}x cut).`
     };
   }
   return {
     tone: 'danger',
-    tag: 'Extreme Idiot Index (> 15x)',
-    text: `Market price is ${formatIndex(index)} raw material value. Redesign from off-the-shelf industrial hardware or machine in-house to cut cost 5x-20x.`
+    tag: 'Extreme markup (over 15x)',
+    text: `The finished price is ${formatIndex(index)} the raw material value. Redesign from off-the-shelf industrial hardware or machine in-house to cut cost 5x-20x.`
   };
 }
 
@@ -153,15 +153,15 @@ function buildBarChartSvg(rawCost, finishedPrice, index) {
       </text>
 
       <!-- Physics Floor Row -->
-      <text x="0" y="54" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#111111">Physics Floor</text>
-      <text x="0" y="70" font-family="JetBrains Mono, monospace" font-size="11" fill="#555555">Raw commodities</text>
+      <text x="0" y="54" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#111111">Raw materials</text>
+      <text x="0" y="70" font-family="JetBrains Mono, monospace" font-size="11" fill="#555555">Physics floor</text>
       <rect x="140" y="38" width="${trackW}" height="32" rx="3" fill="#f4f4f2" stroke="#e5e5e3" />
       <rect x="140" y="38" width="${rawW.toFixed(1)}" height="32" rx="3" fill="#1d4ed8" />
       <text x="${Math.min(608, 148 + rawW).toFixed(1)}" y="59" font-family="JetBrains Mono, monospace" font-size="12" font-weight="600" fill="#111111">${formatMoney(rawCost)}</text>
 
       <!-- Market Price Row -->
-      <text x="0" y="114" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#111111">Market Price</text>
-      <text x="0" y="130" font-family="JetBrains Mono, monospace" font-size="11" fill="#555555">Finished component</text>
+      <text x="0" y="114" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#111111">Finished price</text>
+      <text x="0" y="130" font-family="JetBrains Mono, monospace" font-size="11" fill="#555555">What you pay</text>
       <rect x="140" y="98" width="${trackW}" height="32" rx="3" fill="#f4f4f2" stroke="#e5e5e3" />
       <rect x="140" y="98" width="${finW.toFixed(1)}" height="32" rx="3" fill="${index > 15 ? '#b91c1c' : index > 5 ? '#b45309' : '#111111'}" />
       <text x="${Math.min(545, 148 + finW).toFixed(1)}" y="119" font-family="JetBrains Mono, monospace" font-size="12" font-weight="600" fill="${finW > 380 ? '#ffffff' : '#111111'}" text-anchor="${finW > 380 ? 'end' : 'start'}" dx="${finW > 380 ? '-16' : '0'}">${formatMoney(finishedPrice)}</text>
@@ -170,8 +170,8 @@ function buildBarChartSvg(rawCost, finishedPrice, index) {
       ${
         finishedPrice > targetCost
           ? `<line x1="${targetX.toFixed(1)}" y1="28" x2="${targetX.toFixed(1)}" y2="142" stroke="#15803d" stroke-width="1.5" stroke-dasharray="4 3" />
-             <text x="${Math.min(520, targetX + 6).toFixed(1)}" y="156" font-family="JetBrains Mono, monospace" font-size="11" fill="#15803d">2.2x target: ${formatMoney(targetCost)}</text>`
-          : `<text x="140" y="156" font-family="JetBrains Mono, monospace" font-size="11" fill="#15803d">Already at or below 2.2x physics-tight target</text>`
+             <text x="${Math.min(520, targetX + 6).toFixed(1)}" y="156" font-family="JetBrains Mono, monospace" font-size="11" fill="#15803d">Lean target, 2.2x: ${formatMoney(targetCost)}</text>`
+          : `<text x="140" y="156" font-family="JetBrains Mono, monospace" font-size="11" fill="#15803d">Already at or below the lean 2.2x target</text>`
       }
     </svg>
   `;
@@ -187,26 +187,26 @@ export function initIdiotIndex(container) {
   container.innerHTML = `
     <div class="section-head">
       <div>
-        <h2>Idiot index: price vs raw atoms</h2>
-        <p class="section-lead">Finished price divided by the spot value of its raw materials. Commodity prices are approximate public reference prices; every field is editable.</p>
+        <h2>Price vs raw materials (the "idiot index")</h2>
+        <p class="section-lead">How many times more a finished part costs than the raw metal and materials inside it. A high number means the cost is in the making and the markups, not the physics. Material prices are approximate public market prices; every field is editable.</p>
       </div>
-      <button type="button" class="btn btn-primary" id="ii-download">Download Teardown (.md)</button>
+      <button type="button" class="btn btn-primary" id="ii-download">Download breakdown (.md)</button>
     </div>
 
     <div class="preset-row" id="ii-presets" role="group" aria-label="Component presets"></div>
 
     <div class="grid-2">
       <div class="card">
-        <h3 class="card-title">Bill of Materials (Raw Physics Floor)</h3>
-        <p class="card-copy">Edit any material mass, commodity price, or finished component quote below.</p>
+        <h3 class="card-title">Parts list (bill of materials, BOM)</h3>
+        <p class="card-copy">The raw materials inside the part. Their total value is the lowest possible cost (the physics floor). Edit any weight, price, or the finished price.</p>
 
         <div class="bom-num-pair" style="margin-bottom: 14px;">
           <div class="field-group" style="margin-bottom:0;">
-            <label class="mini-label" for="ii-name">Component Name</label>
+            <label class="mini-label" for="ii-name">Part name</label>
             <input type="text" id="ii-name" />
           </div>
           <div class="field-group" style="margin-bottom:0;">
-            <label class="mini-label" for="ii-finished">Finished Market Price ($)</label>
+            <label class="mini-label" for="ii-finished">Finished price you would pay ($)</label>
             <input type="number" id="ii-finished" min="0" step="any" />
           </div>
         </div>
@@ -214,8 +214,8 @@ export function initIdiotIndex(container) {
         <div class="bom-list" id="ii-bom-list"></div>
 
         <div class="action-bar">
-          <button type="button" class="btn btn-sm" id="ii-add-row">+ Add Material Row</button>
-          <button type="button" class="btn btn-sm" id="ii-compare-steel">Compare Steel vs Carbon</button>
+          <button type="button" class="btn btn-sm" id="ii-add-row">+ Add material</button>
+          <button type="button" class="btn btn-sm" id="ii-compare-steel">Compare steel vs carbon fibre</button>
         </div>
       </div>
 
@@ -227,10 +227,10 @@ export function initIdiotIndex(container) {
     </div>
 
     <details class="theory-drawer">
-      <summary>Theory &amp; Formula — Why the Idiot Index Works</summary>
+      <summary>The formula, and why it works</summary>
       <div class="drawer-body">
         <div class="equation-block">Idiot Index = Finished Component Price / Sum(Material Mass_i * Spot Commodity Price_i)</div>
-        <p>In Walter Isaacson's <em>Elon Musk</em>, the Idiot Index is SpaceX's shortcut for spotting design bloat and aerospace supplier markups. If a part costs 10x to 1,000x its raw aluminum, steel, or silicon, physics is not the bottleneck — the manufacturing process or supply chain is.</p>
+        <p>In words: finished price divided by the total of (weight of each material x its market price per kg). SpaceX uses this as a quick test for over-designed parts and supplier markups. If a part costs 10x to 1,000x its raw aluminium, steel or silicon, physics is not what limits the price: the way it is made or bought is.</p>
         <p>Starship's switch from $135/kg aerospace carbon-fiber prepreg to $3/kg 304L stainless steel lowered both the raw commodity floor and the fabrication multiple simultaneously.</p>
       </div>
     </details>
@@ -298,7 +298,7 @@ export function initIdiotIndex(container) {
                 <input type="number" id="ii-mass-${idx}" data-field="massKg" min="0" step="any" value="${item.massKg}" />
               </div>
               <div>
-                <label class="mini-label" for="ii-price-${idx}">Spot ($/kg)</label>
+                <label class="mini-label" for="ii-price-${idx}">Market price ($/kg)</label>
                 <input type="number" id="ii-price-${idx}" data-field="pricePerKg" min="0" step="any" value="${item.pricePerKg}" />
               </div>
             </div>
@@ -343,17 +343,17 @@ export function initIdiotIndex(container) {
 
     kpisEl.innerHTML = `
       <div class="kpi-box ${indexClass}">
-        <span class="kpi-label">Idiot Index</span>
+        <span class="kpi-label">Idiot index</span>
         <span class="kpi-value">${formatIndex(index)}</span>
-        <span class="kpi-sub">Finished / Raw</span>
+        <span class="kpi-sub">Finished price / raw materials</span>
       </div>
       <div class="kpi-box">
-        <span class="kpi-label">Physics Floor</span>
+        <span class="kpi-label">Raw materials (physics floor)</span>
         <span class="kpi-value">${formatMoney(rawCost)}</span>
         <span class="kpi-sub">${totalMass.toLocaleString('en-US', { maximumFractionDigits: 1 })} kg raw</span>
       </div>
       <div class="kpi-box">
-        <span class="kpi-label">Market Price</span>
+        <span class="kpi-label">Finished price</span>
         <span class="kpi-value">${formatMoney(fin)}</span>
         <span class="kpi-sub">${rawCost > 0 ? `${formatMoney(Math.max(0, fin - rawCost))} markup` : '—'}</span>
       </div>

@@ -9,7 +9,7 @@ import {
 const PRESETS: { id: string; label: string; config: EconomicsInput }[] = [
   {
     id: 'academic',
-    label: 'Academic Core (5K)',
+    label: 'University lab, 5,000 molecules',
     config: {
       librarySize: 5000,
       wetLabCostPerCompound: 35,
@@ -21,7 +21,7 @@ const PRESETS: { id: string; label: string; config: EconomicsInput }[] = [
   },
   {
     id: 'biotech',
-    label: 'Biotech Seed (50K)',
+    label: 'Small biotech, 50,000 molecules',
     config: {
       librarySize: 50000,
       wetLabCostPerCompound: 45,
@@ -33,7 +33,7 @@ const PRESETS: { id: string; label: string; config: EconomicsInput }[] = [
   },
   {
     id: 'pharma',
-    label: 'Pharma Scale (250K)',
+    label: 'Big pharma, 250,000 molecules',
     config: {
       librarySize: 250000,
       wetLabCostPerCompound: 32,
@@ -60,15 +60,17 @@ export const EconomicsCalculator: React.FC = () => {
   const confirmBarW = Math.max(4, (output.confirmatoryWetLabCost / maxCost) * 420);
 
   return (
-    <section className="card econ-card" aria-label="R&D Unit-Economics Calculator">
+    <section className="card econ-card" aria-label="What screening costs, two ways">
       <div className="panel-header econ-header">
         <div>
-          <h2 className="panel-title">R&amp;D Unit-Economics Simulator</h2>
+          <h2 className="panel-title">What screening costs, two ways</h2>
           <p className="panel-subtitle">
-            Model wet-lab HTS spend versus virtual triage plus confirmatory assays.
+            Testing every molecule in a lab is slow and expensive. The other way is to score them
+            all on a computer first, then test only the best in the lab. These sliders price both
+            routes with your own assumptions.
           </p>
         </div>
-        <div className="preset-row" role="group" aria-label="Unit economics scenario presets">
+        <div className="preset-row" role="group" aria-label="Example screening budgets">
           {PRESETS.map((p) => (
             <button
               key={p.id}
@@ -91,9 +93,11 @@ export const EconomicsCalculator: React.FC = () => {
         <div className="econ-controls">
           <div className="slider-item">
             <div className="slider-meta">
-              <label htmlFor="econ-lib">Screening Library Size</label>
+              <label htmlFor="econ-lib">
+                How many molecules to screen
+              </label>
               <span className="mono-num slider-val">
-                {input.librarySize.toLocaleString()} cmpds
+                {input.librarySize.toLocaleString()}
               </span>
             </div>
             <input
@@ -114,7 +118,9 @@ export const EconomicsCalculator: React.FC = () => {
 
           <div className="slider-item">
             <div className="slider-meta">
-              <label htmlFor="econ-wet">Wet-Lab HTS Cost / Cmpd</label>
+              <label htmlFor="econ-wet">
+                Lab cost to test one molecule
+              </label>
               <span className="mono-num slider-val">${input.wetLabCostPerCompound}</span>
             </div>
             <input
@@ -135,7 +141,9 @@ export const EconomicsCalculator: React.FC = () => {
 
           <div className="slider-item">
             <div className="slider-meta">
-              <label htmlFor="econ-compute">In-Silico Compute / Cmpd</label>
+              <label htmlFor="econ-compute">
+                Computer cost to score one molecule
+              </label>
               <span className="mono-num slider-val">
                 ${input.inSilicoCostPerCompound.toFixed(2)}
               </span>
@@ -158,7 +166,9 @@ export const EconomicsCalculator: React.FC = () => {
 
           <div className="slider-item">
             <div className="slider-meta">
-              <label htmlFor="econ-retain">Triage Retention Rate</label>
+              <label htmlFor="econ-retain">
+                Share the computer keeps for lab testing
+              </label>
               <span className="mono-num slider-val">
                 {input.triageRetentionPct.toFixed(1)}% ({output.retainedCompounds.toLocaleString()})
               </span>
@@ -181,7 +191,9 @@ export const EconomicsCalculator: React.FC = () => {
 
           <div className="slider-item">
             <div className="slider-meta">
-              <label htmlFor="econ-confirm">Confirmatory Assay / Hit</label>
+              <label htmlFor="econ-confirm">
+                Lab cost to confirm one promising molecule
+              </label>
               <span className="mono-num slider-val">${input.confirmatoryAssayCost}</span>
             </div>
             <input
@@ -202,7 +214,13 @@ export const EconomicsCalculator: React.FC = () => {
 
           <div className="slider-item">
             <div className="slider-meta">
-              <label htmlFor="econ-enrich">Hit Enrichment Factor</label>
+              <label htmlFor="econ-enrich">
+                How much better than guesswork the computer is
+                <small className="field-hint">
+                  10x means the shortlist contains ten times as many real hits as a random pick
+                  would.
+                </small>
+              </label>
               <span className="mono-num slider-val">{input.enrichmentFactor}x</span>
             </div>
             <input
@@ -225,56 +243,57 @@ export const EconomicsCalculator: React.FC = () => {
         <div className="econ-results">
           <div className="econ-kpi-grid">
             <div className="econ-kpi highlight">
-              <span className="kpi-label">Net Capital Saved</span>
+              <span className="kpi-label">Money saved</span>
               <span className="kpi-big mono-num">
                 {output.netSavings >= 0
                   ? formatCurrency(output.netSavings)
                   : `-${formatCurrency(Math.abs(output.netSavings))}`}
               </span>
               <span className="kpi-note mono-num">
-                {output.costReductionPct.toFixed(1)}% cost reduction
+                {output.costReductionPct.toFixed(1)}% cheaper than lab-only
               </span>
             </div>
 
             <div className="econ-kpi">
-              <span className="kpi-label">Timeline Saved</span>
-              <span className="kpi-big mono-num">{output.weeksSaved} wks</span>
+              <span className="kpi-label">Time saved</span>
+              <span className="kpi-big mono-num">{output.weeksSaved} weeks</span>
               <span className="kpi-note mono-num">
-                {output.traditionalWeeks}w vs {output.hybridWeeks}w hybrid
+                {output.traditionalWeeks} weeks lab-only, {output.hybridWeeks} weeks with the
+                computer first
               </span>
             </div>
 
             <div className="econ-kpi">
-              <span className="kpi-label">Cost / Validated Lead</span>
+              <span className="kpi-label">Cost per confirmed hit</span>
               <span className="kpi-big mono-num">
                 {formatCurrency(output.costPerLeadHybrid)}
               </span>
               <span className="kpi-note mono-num">
-                vs {formatCurrency(output.costPerLeadTraditional)} HTS
+                against {formatCurrency(output.costPerLeadTraditional)} lab-only
               </span>
             </div>
 
             <div className="econ-kpi">
-              <span className="kpi-label">Validated Leads</span>
+              <span className="kpi-label">Confirmed hits found</span>
               <span className="kpi-big mono-num">{output.hybridLeads}</span>
               <span className="kpi-note mono-num">
-                from {output.retainedCompounds.toLocaleString()} assayed
+                out of {output.retainedCompounds.toLocaleString()} tested in the lab
               </span>
             </div>
           </div>
 
           <div className="econ-chart-box">
-            <h3 className="drawer-section-title">Campaign Spend Comparison</h3>
+            <h3 className="drawer-section-title">Where the money goes</h3>
             <svg
               viewBox="0 0 600 156"
               className="econ-svg"
               role="img"
-              aria-label={`Cost comparison: Traditional HTS ${formatExactCurrency(
+              aria-label={`Cost comparison: lab-only ${formatExactCurrency(
                 output.traditionalTotalCost
-              )} versus Hybrid In-Silico ${formatExactCurrency(output.hybridTotalCost)}`}
+              )} against computer first ${formatExactCurrency(output.hybridTotalCost)}`}
             >
               <text x="0" y="20" fontSize="12.5" fontWeight="600" fill="#111111">
-                Traditional Wet-Lab HTS ({input.librarySize.toLocaleString()} assays)
+                Lab-only: test all {input.librarySize.toLocaleString()} molecules
               </text>
               <rect x="0" y="30" width="420" height="28" rx="4" fill="#fafaf9" stroke="#e5e5e3" />
               <rect x="0" y="30" width={tradBarW} height="28" rx="4" fill="#71717a" />
@@ -290,7 +309,7 @@ export const EconomicsCalculator: React.FC = () => {
               </text>
 
               <text x="0" y="92" fontSize="12.5" fontWeight="600" fill="#166534">
-                Hybrid In-Silico Triage + Confirmatory Wet-Lab
+                Computer first, then confirm the shortlist in the lab
               </text>
               <rect x="0" y="102" width="420" height="28" rx="4" fill="#fafaf9" stroke="#e5e5e3" />
               <rect x="0" y="102" width={computeBarW} height="28" rx="3" fill="#52525b" />
@@ -318,21 +337,21 @@ export const EconomicsCalculator: React.FC = () => {
               <div className="breakdown-row">
                 <span className="breakdown-label">
                   <span className="legend-swatch" style={{ backgroundColor: '#52525b' }} />
-                  In-Silico Compute Triage
+                  Computer scoring
                 </span>
                 <span className="mono-num">{formatExactCurrency(output.inSilicoComputeCost)}</span>
               </div>
               <div className="breakdown-row">
                 <span className="breakdown-label">
                   <span className="legend-swatch" style={{ backgroundColor: '#166534' }} />
-                  Confirmatory Wet-Lab ({output.retainedCompounds.toLocaleString()} hits)
+                  Lab tests on the shortlist ({output.retainedCompounds.toLocaleString()})
                 </span>
                 <span className="mono-num">
                   {formatExactCurrency(output.confirmatoryWetLabCost)}
                 </span>
               </div>
               <div className="breakdown-row total">
-                <span>Traditional Full HTS Baseline</span>
+                <span>Lab-only route, for comparison</span>
                 <span className="mono-num">
                   {formatExactCurrency(output.traditionalTotalCost)}
                 </span>
@@ -341,12 +360,17 @@ export const EconomicsCalculator: React.FC = () => {
           </div>
 
           <details className="editorial-details">
-            <summary>Throughput &amp; enrichment model assumptions</summary>
+            <summary>The speed and hit-rate assumptions behind these numbers</summary>
             <div className="details-body">
               <p>
-                Traditional HTS throughput assumes 2,500 compounds/week (min 4 weeks) at a 0.25%
-                random hit rate. Hybrid triage models 1.5 weeks virtual docking/ADMET plus 400
-                confirmatory assays/week, with enriched hit rate capped at 35%.
+                Lab-only route: 2,500 molecules tested per week, never less than 4 weeks in
+                total, and 1 in 400 of them turns out to be a real hit. That 0.25% is the usual
+                figure for picking molecules blind.
+              </p>
+              <p>
+                Computer-first route: about 1.5 weeks of scoring, then 400 lab confirmations per
+                week. The shortlist's hit rate is 0.25% multiplied by the slider above, capped at
+                35%, because no shortlist is ever better than about one hit in three.
               </p>
             </div>
           </details>

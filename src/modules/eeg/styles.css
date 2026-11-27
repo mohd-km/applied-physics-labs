@@ -1068,3 +1068,20 @@ body {
 .top-bar { position: static; backdrop-filter: none; }
 .app-title { font-size: 1.3rem; }
 @media (min-width: 1024px) { .top-bar-inner, .main-container { padding-left: 28px; padding-right: 28px; } }
+
+/* Plain-English hints placed beside jargon */
+.eeg-hint {
+  margin: 6px 0 0;
+  max-width: 100%;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--ink-secondary);
+  overflow-wrap: anywhere;
+}
+.band-plain {
+  font-size: 0.74rem;
+  line-height: 1.35;
+  color: var(--ink-secondary);
+  overflow-wrap: anywhere;
+}
+.panel > .eeg-hint { margin: 0 0 10px; }

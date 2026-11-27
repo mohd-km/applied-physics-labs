@@ -17,28 +17,28 @@ const X_AXIS_CONFIG: Record<
   { label: string; min: number; max: number; ticks: number[]; format: (v: number) => string }
 > = {
   composite: {
-    label: 'Weighted Composite Score (0–100)',
+    label: 'Overall score out of 100 (your slider weights)',
     min: 30,
     max: 100,
     ticks: [35, 50, 65, 80, 95],
     format: (v) => `${v}`,
   },
   qed: {
-    label: 'Drug-Likeness Score (QED)',
+    label: 'How much it looks like a normal drug (QED, 0 to 1)',
     min: 0.05,
     max: 0.9,
     ticks: [0.1, 0.3, 0.5, 0.7, 0.9],
     format: (v) => v.toFixed(1),
   },
   mw: {
-    label: 'Molecular Weight (Da)',
+    label: 'Weight of one molecule (daltons): lighter is easier to absorb',
     min: 50,
     max: 1050,
     ticks: [100, 300, 500, 700, 900],
     format: (v) => `${v}`,
   },
   logP: {
-    label: 'Lipophilicity (cLogP)',
+    label: 'Greasiness (logP): higher means it prefers oil over water',
     min: -7.5,
     max: 8.5,
     ticks: [-6, -3, 0, 3, 5, 8],
@@ -88,7 +88,7 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
           y: scaleY(yMax),
           w: scaleX(xConf.max) - scaleX(70),
           h: scaleY(6.5) - scaleY(yMax),
-          label: 'Top Weighted & Potent (Score >= 70, pIC50 >= 6.5)',
+          label: 'Best of both: score 70+ and strong on target',
         }
       : xMode === 'qed'
       ? {
@@ -96,7 +96,7 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
           y: scaleY(yMax),
           w: scaleX(xConf.max) - scaleX(0.5),
           h: scaleY(6.5) - scaleY(yMax),
-          label: 'Lead-Like Sweet Spot (QED >= 0.5, pIC50 >= 6.5)',
+          label: 'Sweet spot: drug-like and strong on target',
         }
       : xMode === 'mw'
       ? {
@@ -104,26 +104,27 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
           y: scaleY(yMax),
           w: scaleX(500) - scaleX(xConf.min),
           h: scaleY(6.5) - scaleY(yMax),
-          label: 'Ro5 MW <= 500 Da & High Potency',
+          label: 'Light enough for a pill and strong on target',
         }
       : {
           x: scaleX(0),
           y: scaleY(yMax),
           w: scaleX(5) - scaleX(0),
           h: scaleY(6.5) - scaleY(yMax),
-          label: 'Optimal cLogP (0–5) & High Potency',
+          label: 'Greasiness in the useful range and strong on target',
         };
 
   return (
-    <section className="card chart-card" aria-label="Binding Potency vs Chemical Space Scatter Plot">
+    <section className="card chart-card" aria-label="Strength on target plotted against chemistry">
       <div className="chart-header">
         <div>
-          <h2 className="panel-title">Potency vs. Chemical Space</h2>
+          <h2 className="panel-title">Strength against chemistry</h2>
           <p className="panel-subtitle">
-            Tap any node to open its full profile.
+            Each dot is one molecule. Up means stronger on its target. Colour is the body system
+            it acts on. Pick what the sideways axis shows, then tap a dot for the full profile.
           </p>
         </div>
-        <div className="axis-switcher" role="group" aria-label="X-axis metric">
+        <div className="axis-switcher" role="group" aria-label="Choose what the sideways axis shows">
           {(['composite', 'qed', 'mw', 'logP'] as XAxisMode[]).map((mode) => (
             <button
               key={mode}
@@ -132,12 +133,12 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
               onClick={() => setXMode(mode)}
             >
               {mode === 'composite'
-                ? 'Score'
+                ? 'Overall score'
                 : mode === 'qed'
-                ? 'QED'
+                ? 'Drug-likeness'
                 : mode === 'mw'
-                ? 'MW'
-                : 'cLogP'}
+                ? 'Weight'
+                : 'Greasiness'}
             </button>
           ))}
         </div>
@@ -253,7 +254,7 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
             fill="#111111"
             transform={`rotate(-90 16 ${pad.top + plotH / 2})`}
           >
-            Binding Potency (pIC50 / pKi)
+            Strength on its target: each +1 is ten times stronger
           </text>
 
           {compounds.map((c) => {
@@ -271,7 +272,7 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
                 className="scatter-node"
                 role="button"
                 tabIndex={0}
-                aria-label={`${c.name}, ${c.pathway}, potency ${c.potency}, QED ${c.qed}`}
+                aria-label={`${c.name}, acts on ${c.pathway}, strength ${c.potency}, drug-likeness ${c.qed}`}
                 onClick={() => onSelect(c)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -328,14 +329,14 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
               fontSize="13"
               fill="#555555"
             >
-              No compounds match the current thresholds.
+              No molecules match these filters. Loosen a slider on the left.
             </text>
           )}
         </svg>
       </div>
 
       <div className="chart-footer">
-        <div className="legend-row" aria-label="Pathway color legend">
+        <div className="legend-row" aria-label="What each colour means">
           {PATHWAYS.map((pw) => (
             <span key={pw} className="legend-item">
               <span
@@ -346,15 +347,17 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
               {pw}
             </span>
           ))}
-          <span className="legend-item legend-muted">Faded = bRo5 (&gt;1 viol.)</span>
+          <span className="legend-item legend-muted">
+            Faded dots fail two or more boxes on the pill checklist
+          </span>
         </div>
 
         {hovered && (
           <div className="hover-banner mono-num" role="status">
-            <strong>{hovered.name}</strong> ({hovered.chemblId}) &middot; Score{' '}
-            {scoreMap[hovered.id]?.composite.toFixed(1)} &middot; {hovered.affinityMetric}{' '}
-            {hovered.potency.toFixed(1)} &middot; QED {hovered.qed.toFixed(2)} &middot; MW{' '}
-            {hovered.mw.toFixed(0)} Da
+            <strong>{hovered.name}</strong> &middot; score{' '}
+            {scoreMap[hovered.id]?.composite.toFixed(1)} of 100 &middot; strength{' '}
+            {hovered.potency.toFixed(1)} &middot; drug-likeness {hovered.qed.toFixed(2)} of 1
+            &middot; weight {hovered.mw.toFixed(0)} daltons
           </div>
         )}
       </div>

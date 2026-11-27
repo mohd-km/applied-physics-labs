@@ -34,10 +34,10 @@ export const CrystalDetailDrawer: React.FC<CrystalDetailDrawerProps> = ({
 
   const stabilityLabel =
     material.energyAboveHull === 0
-      ? 'Ground State'
+      ? 'Stable (ground state)'
       : material.energyAboveHull <= 0.025
-        ? 'Near-Hull'
-        : 'Metastable';
+        ? 'Nearly stable'
+        : 'Metastable: can exist but may slowly change';
 
   const stabilityClass =
     material.energyAboveHull === 0
@@ -60,7 +60,7 @@ export const CrystalDetailDrawer: React.FC<CrystalDetailDrawerProps> = ({
             <div className="drawer-badges">
               <span className="mono-badge">{material.mpId}</span>
               <span className="family-badge">{material.family}</span>
-              {isPareto && <span className="pareto-badge">Pareto Frontier</span>}
+              {isPareto && <span className="pareto-badge">Best trade-off (Pareto)</span>}
             </div>
             <h2 id="drawer-crystal-title" className="drawer-formula">
               {material.formula}
@@ -82,34 +82,34 @@ export const CrystalDetailDrawer: React.FC<CrystalDetailDrawerProps> = ({
           <section className="drawer-section">
             <h3 className="drawer-section-title">
               <Layers size={15} aria-hidden="true" />
-              <span>Electronic & stability properties</span>
+              <span>Electrical and stability properties</span>
             </h3>
             <div className="metrics-grid">
               <div className="metric-box">
-                <span className="metric-label">Band Gap</span>
+                <span className="metric-label">Band gap (energy to free an electron)</span>
                 <span className="metric-val mono-cell">{material.bandGap.toFixed(2)} eV</span>
                 <span className="metric-sub">
-                  {material.bandGapType} · PBE {material.pbeBandGap.toFixed(2)} eV
+                  {material.bandGapType === 'Direct' ? 'Direct: absorbs light easily' : 'Indirect: absorbs light weakly'} · quick computer estimate (PBE) {material.pbeBandGap.toFixed(2)} eV
                 </span>
               </div>
               <div className="metric-box">
-                <span className="metric-label">Hull Stability</span>
+                <span className="metric-label">Instability (energy above hull)</span>
                 <span className="metric-val mono-cell">
-                  {material.energyAboveHull.toFixed(3)} eV/at
+                  {material.energyAboveHull.toFixed(3)} eV/atom
                 </span>
                 <span className={`hull-pill ${stabilityClass}`}>{stabilityLabel}</span>
               </div>
               <div className="metric-box">
-                <span className="metric-label">Formation Energy</span>
+                <span className="metric-label">Formation energy (more negative = more tightly bound)</span>
                 <span className="metric-val mono-cell">
-                  {material.formationEnergy.toFixed(2)} eV/at
+                  {material.formationEnergy.toFixed(2)} eV/atom
                 </span>
-                <span className="metric-sub">{material.spaceGroup}</span>
+                <span className="metric-sub">Symmetry group (space group) {material.spaceGroup}</span>
               </div>
               <div className="metric-box">
                 <span className="metric-label">Density</span>
                 <span className="metric-val mono-cell">{material.density.toFixed(2)} g/cm^3</span>
-                <span className="metric-sub">{material.crystalSystem}</span>
+                <span className="metric-sub">Crystal shape family: {material.crystalSystem}</span>
               </div>
             </div>
           </section>
@@ -122,7 +122,7 @@ export const CrystalDetailDrawer: React.FC<CrystalDetailDrawerProps> = ({
               ) : (
                 <CheckCircle2 size={15} className="icon-success" aria-hidden="true" />
               )}
-              <span>Abundance ({material.earthAbundanceScore}/100)</span>
+              <span>How easy to source ({material.earthAbundanceScore}/100)</span>
             </h3>
 
             <div className="abundance-bar-wrap">
@@ -136,17 +136,17 @@ export const CrystalDetailDrawer: React.FC<CrystalDetailDrawerProps> = ({
 
             {material.bottleneckElements.length > 0 ? (
               <div className="callout callout-danger">
-                <strong>Bottleneck elements:</strong> {material.bottleneckElements.join(', ')} ({material.supplyRisk} risk).
+                <strong>Scarce elements:</strong> {material.bottleneckElements.join(', ')} ({material.supplyRisk.toLowerCase()} supply risk).
               </div>
             ) : (
               <div className="callout callout-success">
-                <strong>Earth-abundant:</strong> Free of Co, Te, In, Ge, Ga, La bottlenecks.
+                <strong>Common elements only:</strong> no cobalt, tellurium, indium, germanium, gallium or lanthanum.
               </div>
             )}
 
             {alternatives.length > 0 && (
               <div className="alternatives-block">
-                <span className="alternatives-label">Abundant alternatives:</span>
+                <span className="alternatives-label">Cheaper, common-element alternatives:</span>
                 <div className="alternatives-list">
                   {alternatives.map((alt) => (
                     <button
@@ -170,20 +170,20 @@ export const CrystalDetailDrawer: React.FC<CrystalDetailDrawerProps> = ({
           <section className="drawer-section">
             <h3 className="drawer-section-title">
               <Clock size={15} aria-hidden="true" />
-              <span>Commercialization &amp; TRL</span>
+              <span>Road to market (technology readiness, TRL)</span>
             </h3>
 
             <div className="lag-meta-grid">
               <div className="lag-meta-item">
-                <span className="metric-label">Milestone</span>
+                <span className="metric-label">First discovered or screened</span>
                 <strong className="mono-cell">{material.milestoneYear}</strong>
               </div>
               <div className="lag-meta-item">
-                <span className="metric-label">TRL</span>
+                <span className="metric-label">Readiness (TRL, 9 = mass production)</span>
                 <strong className="mono-cell">{material.trl} / 9</strong>
               </div>
               <div className="lag-meta-item">
-                <span className="metric-label">Observed Lag</span>
+                <span className="metric-label">Time to market</span>
                 <strong>{material.commercializationLag}</strong>
               </div>
               <div className="lag-meta-item">
@@ -202,12 +202,12 @@ export const CrystalDetailDrawer: React.FC<CrystalDetailDrawerProps> = ({
             </div>
 
             <div className="barrier-box">
-              <span className="barrier-label">Primary Barrier</span>
+              <span className="barrier-label">Biggest hurdle</span>
               <p className="barrier-text">{material.primaryBarrier}</p>
             </div>
 
             <details className="editorial-details">
-              <summary className="details-summary">Read full commercialization analysis</summary>
+              <summary className="details-summary">Read the full road-to-market story</summary>
               <div className="details-body">
                 <p className="analysis-paragraph">{material.commercializationAnalysis}</p>
               </div>

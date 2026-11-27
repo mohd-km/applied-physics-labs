@@ -30,9 +30,9 @@ interface LinkBudgetLabProps {
 }
 
 const WEATHER_OPTIONS: { id: WeatherCondition; label: string }[] = [
-  { id: 'clear', label: 'Clear Sky' },
-  { id: 'light-rain', label: 'Light Rain' },
-  { id: 'heavy-rain', label: 'Heavy Rain' },
+  { id: 'clear', label: 'Clear sky' },
+  { id: 'light-rain', label: 'Light rain' },
+  { id: 'heavy-rain', label: 'Heavy rain' },
 ];
 
 export const LinkBudgetLab: React.FC<LinkBudgetLabProps> = ({
@@ -104,15 +104,17 @@ export const LinkBudgetLab: React.FC<LinkBudgetLabProps> = ({
         <div>
           <div className="lab-step">02 / RF link</div>
           <h2 id="link-budget-heading" className="lab-card-title">
-            Friis & Shannon link budget
+            How fast can the satellite talk to you?
           </h2>
           <p className="lab-card-desc">
-            Select S, Ku, or Ka-band, tune channel bandwidth and dish gain, and compute free-space path loss, received SNR, and Shannon capacity.
+            A link budget is a running total of signal strength: what the satellite sends, minus what fades over distance and in rain, plus what your antenna catches. Compare what is left with background hiss to get the top possible download speed.
           </p>
         </div>
         <div className={`status-pill ${result.linkStatus}`}>
           <Radio size={14} aria-hidden="true" />
-          <span>{result.modulationScheme}</span>
+          <span title="How data is packed onto the radio wave at this signal quality">
+            {result.linkStatus === 'strong' ? 'Good link' : result.linkStatus === 'marginal' ? 'Weak link' : 'No link'} · {result.modulationScheme}
+          </span>
         </div>
       </div>
 
@@ -123,7 +125,7 @@ export const LinkBudgetLab: React.FC<LinkBudgetLabProps> = ({
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontWeight: 500 }}>
               <Link2 size={16} color="var(--accent)" aria-hidden="true" />
               <span>
-                Couple slant distance to orbit ({Math.round(orbitSlantRangeKm).toLocaleString()} km)
+                Use the distance from the orbit above ({Math.round(orbitSlantRangeKm).toLocaleString()} km)
               </span>
             </span>
             <input
@@ -135,7 +137,7 @@ export const LinkBudgetLab: React.FC<LinkBudgetLabProps> = ({
 
           <div>
             <div className="kpi-label" style={{ marginBottom: '6px' }}>
-              Satellite RF Band Presets
+              Radio band (S, Ku, Ka: low to high frequency)
             </div>
             <div className="preset-row">
               {BAND_PRESETS.map((b) => (
@@ -154,7 +156,7 @@ export const LinkBudgetLab: React.FC<LinkBudgetLabProps> = ({
           <div className="control-group">
             <div className="control-header">
               <label htmlFor="freq-slider" className="control-label">
-                Carrier Frequency (wavelength {result.wavelengthMm.toFixed(1)} mm)
+                Radio frequency (wavelength {result.wavelengthMm.toFixed(1)} mm)
               </label>
               <span className="control-value">{frequencyGHz.toFixed(1)} GHz</span>
             </div>
@@ -173,12 +175,13 @@ export const LinkBudgetLab: React.FC<LinkBudgetLabProps> = ({
               <span>28 GHz (Ka)</span>
               <span>38 GHz</span>
             </div>
+            <p className="plain-hint">Higher frequency carries more data but fades more in rain.</p>
           </div>
 
           <div className="control-group">
             <div className="control-header">
               <label htmlFor="bw-slider" className="control-label">
-                Channel Bandwidth (B)
+                Width of the radio lane (bandwidth, B)
               </label>
               <span className="control-value">{bandwidthMHz} MHz</span>
             </div>
@@ -197,12 +200,13 @@ export const LinkBudgetLab: React.FC<LinkBudgetLabProps> = ({
               <span>500 MHz</span>
               <span>800 MHz</span>
             </div>
+            <p className="plain-hint">A wider lane carries more data, but also lets in more background noise.</p>
           </div>
 
           <div className="control-group">
             <div className="control-header">
               <label htmlFor="gain-slider" className="control-label">
-                Receiver Dish / Phased-Array Gain (Gr)
+                How well your antenna focuses the signal (antenna gain, Gr)
               </label>
               <span className="control-value">{dishGainDbi} dBi</span>
             </div>
@@ -220,12 +224,13 @@ export const LinkBudgetLab: React.FC<LinkBudgetLabProps> = ({
               <span>34 dBi (phased array)</span>
               <span>55 dBi (gateway)</span>
             </div>
+            <p className="plain-hint">dB is a log scale: every +3 dB roughly doubles the power, +10 dB is 10 times.</p>
           </div>
 
           <div className="control-group">
             <div className="control-header">
               <label htmlFor="eirp-slider" className="control-label">
-                Satellite Spot-Beam EIRP
+                Satellite transmit strength (EIRP)
               </label>
               <span className="control-value">{eirpDbw} dBW</span>
             </div>
@@ -241,15 +246,16 @@ export const LinkBudgetLab: React.FC<LinkBudgetLabProps> = ({
             <div className="slider-ticks">
               <span>35 dBW</span>
               <span>50 dBW (LEO spot)</span>
-              <span>65 dBW (HTS)</span>
+              <span>65 dBW (big broadband satellite)</span>
             </div>
+            <p className="plain-hint">EIRP is the power the satellite beams toward you, counting its own antenna focus. dBW means decibels compared with 1 watt.</p>
           </div>
 
           {!coupleToOrbit && (
             <div className="control-group">
               <div className="control-header">
                 <label htmlFor="dist-slider" className="control-label">
-                  Manual Link Slant Distance
+                  Distance from you to the satellite
                 </label>
                 <span className="control-value">{manualDistanceKm.toLocaleString()} km</span>
               </div>
@@ -274,7 +280,7 @@ export const LinkBudgetLab: React.FC<LinkBudgetLabProps> = ({
           <div>
             <div className="kpi-label" style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <CloudRain size={14} aria-hidden="true" />
-              <span>Atmospheric Weather (Rain Fade: {result.rainFadeDb.toFixed(1)} dB)</span>
+              <span>Weather (signal lost to rain: {result.rainFadeDb.toFixed(1)} dB)</span>
             </div>
             <div className="preset-row">
               {WEATHER_OPTIONS.map((w) => (
@@ -295,36 +301,42 @@ export const LinkBudgetLab: React.FC<LinkBudgetLabProps> = ({
         <div className="controls-panel">
           <div className="kpi-grid">
             <div className="kpi-tile">
-              <div className="kpi-label">Free-Space Path Loss</div>
+              <div className="kpi-label">Signal lost to distance (path loss)</div>
               <div className="kpi-value">{result.fsplDb.toFixed(1)} dB</div>
               <div className="kpi-sub">
-                +{(result.atmLossDb + result.rainFadeDb).toFixed(1)} dB atm/rain
+                +{(result.atmLossDb + result.rainFadeDb).toFixed(1)} dB air and rain
               </div>
             </div>
 
             <div className="kpi-tile">
-              <div className="kpi-label">Signal-to-Noise (SNR)</div>
+              <div className="kpi-label">Signal vs background hiss (SNR)</div>
               <div className="kpi-value">
                 {result.snrDb >= 0 ? '+' : ''}
                 {result.snrDb.toFixed(1)} dB
               </div>
               <div className="kpi-sub">
-                Rx {result.receivedPowerDbw.toFixed(1)} vs N {result.noiseFloorDbw.toFixed(1)} dBW
+                received {result.receivedPowerDbw.toFixed(1)} vs noise {result.noiseFloorDbw.toFixed(1)} dBW
               </div>
             </div>
 
             <div className="kpi-tile">
-              <div className="kpi-label">Shannon Max Capacity</div>
+              <div className="kpi-label">Top possible speed (Shannon limit)</div>
               <div className="kpi-value">{formatThroughput(result.shannonCapacityMbps)}</div>
-              <div className="kpi-sub">{result.spectralEfficiencyBpsHz.toFixed(2)} bits/s/Hz</div>
+              <div className="kpi-sub">{result.spectralEfficiencyBpsHz.toFixed(2)} bits per second per Hz of lane</div>
             </div>
 
             <div className="kpi-tile">
-              <div className="kpi-label">Practical LDPC Rate</div>
+              <div className="kpi-label">Real-world speed (with error correction)</div>
               <div className="kpi-value">{formatThroughput(result.practicalLdpcMbps)}</div>
-              <div className="kpi-sub">~76% of Shannon limit</div>
+              <div className="kpi-sub">
+                {result.shannonCapacityMbps > 0 ? Math.round((result.practicalLdpcMbps / result.shannonCapacityMbps) * 100) : 0}% of the limit, after LDPC error-correction overhead
+              </div>
             </div>
           </div>
+
+          <p className="plain-hint">
+            SNR above 0 dB means the signal is louder than the noise. Around +10 dB or more is a comfortable link; below about -2 dB the receiver cannot lock on.
+          </p>
 
           {/* Embedded dark figure box: RF Link Budget Scope + Shannon Curve */}
           <div className="figure-box" style={{ padding: '16px' }}>
@@ -334,11 +346,13 @@ export const LinkBudgetLab: React.FC<LinkBudgetLabProps> = ({
                 fontSize: '12px',
                 color: '#cbd5e1',
                 display: 'flex',
+                flexWrap: 'wrap',
+                gap: '4px 12px',
                 justifyContent: 'space-between',
                 marginBottom: '10px',
               }}
             >
-              <span>SHANNON CAPACITY CURVE: C = B log2(1 + SNR)</span>
+              <span>Top speed vs signal quality (Shannon: C = B log2(1 + SNR))</span>
               <span style={{ color: '#93c5fd' }}>B = {bandwidthMHz} MHz</span>
             </div>
 
@@ -442,20 +456,20 @@ export const LinkBudgetLab: React.FC<LinkBudgetLabProps> = ({
             {/* Power Budget Waterfall Bar */}
             <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid #1e293b' }}>
               <div className="mono" style={{ fontSize: '12px', color: '#cbd5e1', marginBottom: '8px' }}>
-                POWER BUDGET WATERFALL (dBW)
+                Signal strength step by step (dBW, higher is stronger)
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {[
-                  { label: 'Tx EIRP', val: result.eirpDbw, color: '#60a5fa' },
-                  { label: 'After FSPL + Rain', val: afterFspl, color: '#f87171' },
-                  { label: 'Rx Power (+Gain)', val: result.receivedPowerDbw, color: '#34d399' },
-                  { label: 'Thermal Noise Floor', val: result.noiseFloorDbw, color: '#94a3b8' },
+                  { label: 'Sent (EIRP)', val: result.eirpDbw, color: '#60a5fa' },
+                  { label: 'After distance + rain', val: afterFspl, color: '#f87171' },
+                  { label: 'Received (+antenna)', val: result.receivedPowerDbw, color: '#34d399' },
+                  { label: 'Background noise', val: result.noiseFloorDbw, color: '#94a3b8' },
                 ].map((row) => (
                   <div
                     key={row.label}
                     style={{
                       display: 'grid',
-                      gridTemplateColumns: '132px 1fr 72px',
+                      gridTemplateColumns: 'minmax(0, 150px) 1fr 52px',
                       alignItems: 'center',
                       gap: '8px',
                       fontSize: '11px',

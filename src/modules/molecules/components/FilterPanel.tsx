@@ -56,10 +56,11 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
     <section className="card filter-panel" aria-label="Screening Filters">
       <div className="panel-header">
         <div>
-          <h2 className="panel-title">Target &amp; Lipinski Filters</h2>
+          <h2 className="panel-title">Narrow the shortlist</h2>
           <p className="panel-subtitle">
             Showing <strong className="mono-num">{filteredCount}</strong> of{' '}
-            <span className="mono-num">{totalCount}</span> curated candidates
+            <span className="mono-num">{totalCount}</span> molecules. Each filter below rules out
+            molecules whose chemistry fails that limit.
           </p>
         </div>
         <button
@@ -75,7 +76,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
       {/* Search */}
       <div className="field-group">
         <label htmlFor="compound-search" className="field-label">
-          Search Compound, Target, or ChEMBL ID
+          Search by name, biological target, or database ID
         </label>
         <div className="search-input-wrap">
           <svg
@@ -106,35 +107,41 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 
       {/* Quick Presets */}
       <div className="field-group">
-        <span className="field-label">Quick Triage Presets</span>
+        <span className="field-label">One-click shortcuts</span>
         <div className="preset-row">
           <button
             type="button"
             className="btn-preset"
             onClick={() => applyPreset('ro5')}
           >
-            Lipinski Ro5
+            Passes the pill checklist
           </button>
           <button
             type="button"
             className="btn-preset"
             onClick={() => applyPreset('potent')}
           >
-            pIC50 &ge; 7.0
+            Strong on target
           </button>
           <button
             type="button"
             className="btn-preset"
             onClick={() => applyPreset('clinical')}
           >
-            FDA Approved
+            Already an approved medicine
           </button>
         </div>
       </div>
 
       {/* Target Pathway Pills */}
       <div className="field-group">
-        <span className="field-label">Target Pathway</span>
+        <span className="field-label">
+          Biological system it acts on (pathway)
+          <small className="field-hint">
+            The body process the molecule nudges, for example mTOR, the growth switch that
+            fasting and rapamycin dial down, or senolytics, which clear worn-out cells.
+          </small>
+        </span>
         <div className="pill-grid" role="group" aria-label="Filter by target pathway">
           <button
             type="button"
@@ -179,7 +186,11 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
       {/* Clinical Phase Select */}
       <div className="field-group">
         <label htmlFor="phase-select" className="field-label">
-          Clinical Trial Phase
+          How far it got in human trials
+          <small className="field-hint">
+            Preclinical means animals only. Phase 1 to 3 are human trials of rising size.
+            Approved means in use as a medicine.
+          </small>
         </label>
         <select
           id="phase-select"
@@ -187,7 +198,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           value={filters.phase}
           onChange={(e) => update('phase', e.target.value as ClinicalPhase | 'All')}
         >
-          <option value="All">All Clinical Phases</option>
+          <option value="All">Any stage</option>
           {CLINICAL_PHASES.map((phase) => (
             <option key={phase} value={phase}>
               {phase}
@@ -200,24 +211,35 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 
       {/* Lipinski Rule-of-5 Sliders */}
       <div className="sliders-header">
-        <span className="field-label">Lipinski Rule-of-5 &amp; Potency Sliders</span>
+        <span className="field-label">
+          Pill checklist limits (Lipinski rule of five)
+          <small className="field-hint">
+            Four quick limits on size, greasiness and stickiness that most successful pills
+            respect. Molecules over a limit are usually hard to swallow and absorb.
+          </small>
+        </span>
         <label className="toggle-label">
           <input
             type="checkbox"
             checked={filters.strictRo5Only}
             onChange={(e) => update('strictRo5Only', e.target.checked)}
           />
-          <span>Strict Ro5 (&le;1 viol.)</span>
+          <span>Only molecules failing at most one of the four</span>
         </label>
       </div>
 
       <div className="slider-list">
         <div className="slider-item">
           <div className="slider-meta">
-            <label htmlFor="slider-mw">Max Molecular Weight</label>
+            <label htmlFor="slider-mw">
+              Biggest molecule allowed (molecular weight)
+              <small className="field-hint">
+                Weight of one molecule in daltons. Heavier molecules get absorbed less well.
+              </small>
+            </label>
             <span className="mono-num slider-val">
               &le; {filters.maxMw} Da
-              {filters.maxMw <= RO5_LIMITS.mw ? ' (Ro5)' : ''}
+              {filters.maxMw <= RO5_LIMITS.mw ? ' (checklist limit)' : ''}
             </span>
           </div>
           <input
@@ -231,17 +253,23 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           />
           <div className="slider-ticks">
             <span>100</span>
-            <span className="ro5-tick">Ro5: 500 Da</span>
+            <span className="ro5-tick">checklist: 500 Da</span>
             <span>1000</span>
           </div>
         </div>
 
         <div className="slider-item">
           <div className="slider-meta">
-            <label htmlFor="slider-logp">Max cLogP (Lipophilicity)</label>
+            <label htmlFor="slider-logp">
+              Greasiest allowed (logP)
+              <small className="field-hint">
+                How much it prefers oil over water. Too low and it cannot cross cell membranes,
+                too high and it sticks in fat.
+              </small>
+            </label>
             <span className="mono-num slider-val">
               &le; {filters.maxLogP.toFixed(1)}
-              {filters.maxLogP <= RO5_LIMITS.logP ? ' (Ro5)' : ''}
+              {filters.maxLogP <= RO5_LIMITS.logP ? ' (checklist limit)' : ''}
             </span>
           </div>
           <input
@@ -255,17 +283,23 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           />
           <div className="slider-ticks">
             <span>-4.0</span>
-            <span className="ro5-tick">Ro5: 5.0</span>
+            <span className="ro5-tick">checklist: 5.0</span>
             <span>8.0</span>
           </div>
         </div>
 
         <div className="slider-item">
           <div className="slider-meta">
-            <label htmlFor="slider-hbd">Max H-Bond Donors (HBD)</label>
+            <label htmlFor="slider-hbd">
+              Most sticky hydrogens allowed (H-bond donors)
+              <small className="field-hint">
+                Spots that can hand a hydrogen to water. Many of them make the molecule too
+                water-loving to cross membranes.
+              </small>
+            </label>
             <span className="mono-num slider-val">
               &le; {filters.maxHbd}
-              {filters.maxHbd <= RO5_LIMITS.hbd ? ' (Ro5)' : ''}
+              {filters.maxHbd <= RO5_LIMITS.hbd ? ' (checklist limit)' : ''}
             </span>
           </div>
           <input
@@ -279,17 +313,22 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           />
           <div className="slider-ticks">
             <span>0</span>
-            <span className="ro5-tick">Ro5: 5</span>
+            <span className="ro5-tick">checklist: 5</span>
             <span>15</span>
           </div>
         </div>
 
         <div className="slider-item">
           <div className="slider-meta">
-            <label htmlFor="slider-hba">Max H-Bond Acceptors (HBA)</label>
+            <label htmlFor="slider-hba">
+              Most water-grabbing spots allowed (H-bond acceptors)
+              <small className="field-hint">
+                The matching spots that accept a hydrogen from water. Same trade-off as above.
+              </small>
+            </label>
             <span className="mono-num slider-val">
               &le; {filters.maxHba}
-              {filters.maxHba <= RO5_LIMITS.hba ? ' (Ro5)' : ''}
+              {filters.maxHba <= RO5_LIMITS.hba ? ' (checklist limit)' : ''}
             </span>
           </div>
           <input
@@ -303,16 +342,21 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           />
           <div className="slider-ticks">
             <span>1</span>
-            <span className="ro5-tick">Ro5: 10</span>
+            <span className="ro5-tick">checklist: 10</span>
             <span>20</span>
           </div>
         </div>
 
         <div className="slider-item">
           <div className="slider-meta">
-            <label htmlFor="slider-potency">Min Binding Potency</label>
+            <label htmlFor="slider-potency">
+              Weakest strength allowed (lab potency)
+              <small className="field-hint">
+                Each +1 means ten times stronger, so a ten times smaller dose does the same job.
+              </small>
+            </label>
             <span className="mono-num slider-val">
-              &ge; {filters.minPotency.toFixed(1)} pIC50
+              &ge; {filters.minPotency.toFixed(1)}
             </span>
           </div>
           <input
@@ -325,9 +369,9 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             onChange={(e) => update('minPotency', Number(e.target.value))}
           />
           <div className="slider-ticks">
-            <span>3.5 (uM)</span>
-            <span>6.5 (sub-uM)</span>
-            <span>9.5 (sub-nM)</span>
+            <span>3.5 weak</span>
+            <span>6.5 strong</span>
+            <span>9.5 very strong</span>
           </div>
         </div>
       </div>

@@ -120,9 +120,9 @@ export const StabilityScatterPlot: React.FC<StabilityScatterPlotProps> = ({
     <section className="card chart-card" aria-label="Interactive Pareto-Frontier Scatter Plot">
       <div className="card-header chart-header-bar">
         <div className="chart-title-block">
-          <h2 className="card-title">Live Pareto-Frontier Landscape</h2>
+          <h2 className="card-title">Stability vs band gap: the best trade-offs</h2>
           <p className="card-subtitle">
-            Non-dominated crystals highlighted in cobalt. Drag spec sliders or click any crystal to inspect.
+            Lower on the chart means more stable. Blue dots joined by the line are the Pareto frontier: crystals no other crystal beats on stability, abundance and band-gap fit all at once. Move the sliders or click any dot.
           </p>
         </div>
 
@@ -144,7 +144,7 @@ export const StabilityScatterPlot: React.FC<StabilityScatterPlotProps> = ({
               className={`seg-tab ${axisMode === 'abundance' ? 'seg-tab-active' : ''}`}
               onClick={() => setAxisMode('abundance')}
             >
-              Abundance
+              Abundance (0 to 100)
             </button>
           </div>
 
@@ -155,7 +155,7 @@ export const StabilityScatterPlot: React.FC<StabilityScatterPlotProps> = ({
             aria-pressed={paretoOnly}
           >
             <Sparkles size={14} aria-hidden="true" />
-            <span>Pareto ({paretoIds.size})</span>
+            <span>Best trade-offs only ({paretoIds.size})</span>
           </button>
 
           <button
@@ -182,12 +182,12 @@ export const StabilityScatterPlot: React.FC<StabilityScatterPlotProps> = ({
       <div className="legend-row" aria-label="Chart legend">
         <span className="legend-item">
           <span className="legend-pareto-swatch" />
-          <span>Pareto Frontier ({paretoIds.size})</span>
+          <span>Best trade-offs, Pareto ({paretoIds.size})</span>
         </span>
         {(['Low', 'Moderate', 'High', 'Critical'] as SupplyRiskTier[]).map((tier) => (
           <span key={tier} className="legend-item">
             <span className="legend-dot" style={{ backgroundColor: RISK_COLORS[tier] }} />
-            <span>{tier === 'Low' ? 'Abundant' : tier}</span>
+            <span>{tier === 'Low' ? 'Abundant' : `${tier} supply risk`}</span>
           </span>
         ))}
       </div>
@@ -274,7 +274,7 @@ export const StabilityScatterPlot: React.FC<StabilityScatterPlotProps> = ({
             strokeDasharray="4 4"
           />
           <text x={pad.left + plotW - 6} y={thresholdY - 6} textAnchor="end" className="threshold-label">
-            0.025 eV/atom synthesizable guideline
+            0.025 eV/atom: usually still makeable
           </text>
 
           {/* Ground state baseline */}
@@ -405,8 +405,8 @@ export const StabilityScatterPlot: React.FC<StabilityScatterPlotProps> = ({
           {/* Axis Labels */}
           <text x={pad.left + plotW / 2} y={height - 12} textAnchor="middle" className="axis-title">
             {axisMode === 'bandgap'
-              ? 'Benchmarked Band Gap, E_g (eV)'
-              : 'Earth-Abundance Resilience Score (0–100)'}
+              ? 'Band gap, E_g (eV): energy to free an electron'
+              : 'Earth abundance score (0 to 100, higher is easier to source)'}
           </text>
           <text
             x={18}
@@ -415,7 +415,7 @@ export const StabilityScatterPlot: React.FC<StabilityScatterPlotProps> = ({
             transform={`rotate(-90 18 ${pad.top + plotH / 2})`}
             className="axis-title"
           >
-            Energy Above Hull, E_hull (eV/atom)
+            Instability, E_hull (eV/atom), 0 = stable
           </text>
         </svg>
       </div>
@@ -434,13 +434,13 @@ export const StabilityScatterPlot: React.FC<StabilityScatterPlotProps> = ({
             </div>
             <div className="inspect-metrics">
               <span>
-                E_g <strong>{activeInspect.bandGap.toFixed(2)} eV</strong>
+                Band gap <strong>{activeInspect.bandGap.toFixed(2)} eV</strong>
               </span>
               <span>
-                E_hull <strong>{activeInspect.energyAboveHull.toFixed(3)}</strong>
+                Instability (E_hull) <strong>{activeInspect.energyAboveHull.toFixed(3)} eV/atom</strong>
               </span>
               <span>
-                Abund. <strong>{activeInspect.earthAbundanceScore}</strong>
+                Abundance <strong>{activeInspect.earthAbundanceScore}/100</strong>
               </span>
               <button
                 type="button"
@@ -460,18 +460,20 @@ export const StabilityScatterPlot: React.FC<StabilityScatterPlotProps> = ({
 
       {/* Collapsible Methodology Drawer */}
       <details className="editorial-details chart-details">
-        <summary className="details-summary">Data &amp; Pareto frontier method</summary>
+        <summary className="details-summary">How the best trade-offs are picked, and where the data comes from</summary>
         <div className="details-body">
           <p>
-            <strong>Pareto Optimality:</strong> A shortlisted crystal is non-dominated if no other
-            candidate simultaneously achieves lower thermodynamic instability (<code>E_hull</code>),
-            higher earth-abundance score, and better band-gap fit (distance to window midpoint for
-            bounded ranges, or wider gap for open-ended power/electrolyte windows).
+            <strong>Best trade-offs (Pareto optimal):</strong> a crystal makes the cut if no other
+            shortlisted crystal is at least as good on all three goals and better on one: lower
+            instability (<code>E_hull</code>), higher earth-abundance score, and better band-gap fit
+            (closest to the middle of your window, or simply the widest gap when the window is open-ended,
+            as for power chips and solid electrolytes).
           </p>
           <p>
-            <strong>Data:</strong> Hull distances (<code>E_hull</code>) are hand-curated approximations
-            modelled on Materials Project PBE phase diagrams, not a live query; band gaps use
-            experiment-calibrated literature values, with approximate PBE gaps in the crystal drawer.
+            <strong>Data:</strong> stability values (<code>E_hull</code>) are hand-curated estimates
+            modelled on Materials Project stability maps, not a live query. Band gaps use published,
+            experiment-checked values; the crystal drawer also shows the rougher PBE gap, a quick
+            computer estimate that usually comes out too low.
           </p>
         </div>
       </details>

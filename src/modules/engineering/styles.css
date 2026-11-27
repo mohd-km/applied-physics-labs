@@ -975,3 +975,14 @@ details.theory-drawer[open] summary::after {
   .preset-row::-webkit-scrollbar { display: none; }
   .preset-row .pill-btn { flex: 0 0 auto; white-space: nowrap; }
 }
+
+/* Plain-English hint shown right under a heading or control */
+.plain-hint {
+  margin: 6px 0 0;
+  max-width: 100%;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--ink-muted);
+  overflow-wrap: anywhere;
+}
+.section-head .plain-hint { max-width: 64ch; }

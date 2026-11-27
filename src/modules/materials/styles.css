@@ -1878,3 +1878,6 @@ h3 {
 .site-header { padding: 12px 16px 18px; }
 .module-heading { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 700; margin: 0; }
 @media (min-width: 1024px) { .site-header { padding: 14px 28px 20px; } .main-container { padding-left: 28px; padding-right: 28px; } }
+
+/* Plain-English hint under a control */
+.mat-hint { margin: 2px 0 6px; max-width: 100%; font-size: 12px; line-height: 1.45; color: #6b6b68; overflow-wrap: anywhere; }

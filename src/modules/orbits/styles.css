@@ -669,3 +669,18 @@ table.data-table tr:last-child td {
 @media (min-width: 768px) { .page-shell { padding: 16px 28px 56px; } }
 .site-header { padding-bottom: 14px; margin-bottom: 20px; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; }
 .module-heading { font-size: 20px; margin: 0; }
+
+/* Plain-English hints beside jargon */
+.plain-hint {
+  margin: 6px 0 0;
+  max-width: 100%;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--ink-secondary);
+  overflow-wrap: anywhere;
+}
+
+.figure-box .figure-hint {
+  margin: 8px 0 0;
+  color: #cbd5e1;
+}

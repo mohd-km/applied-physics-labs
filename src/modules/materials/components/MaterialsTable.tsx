@@ -56,7 +56,7 @@ export const MaterialsTable: React.FC<MaterialsTableProps> = ({
         <div>
           <h2 className="card-title">Shortlisted Crystals ({materials.length})</h2>
           <p className="card-subtitle">
-            Click any row for band-gap and hull details, abundant substitutes, and commercialization lag.
+            Click any row for its full properties, cheaper look-alike substitutes, and how long it took to reach the market.
           </p>
         </div>
         <button
@@ -81,7 +81,7 @@ export const MaterialsTable: React.FC<MaterialsTableProps> = ({
 
       {sorted.length === 0 ? (
         <div className="empty-state">
-          No crystals match the current spec. Widen the band gap range or raise the E_hull cutoff.
+          No crystals match. Widen the band gap range or allow more instability (raise the E_hull cutoff).
         </div>
       ) : (
         <div
@@ -99,14 +99,14 @@ export const MaterialsTable: React.FC<MaterialsTableProps> = ({
                     <ArrowUpDown size={13} aria-hidden="true" />
                   </button>
                 </th>
-                <th>MP ID</th>
+                <th title="Materials Project database ID">DB ID</th>
                 <th className="num-col">
                   <button
                     type="button"
                     className="th-sort th-sort-num"
                     onClick={() => handleSort('bandGap')}
                   >
-                    <span>E_g (eV)</span>
+                    <span title="Band gap: energy to free an electron">Band gap (eV)</span>
                     <ArrowUpDown size={13} aria-hidden="true" />
                   </button>
                 </th>
@@ -116,7 +116,7 @@ export const MaterialsTable: React.FC<MaterialsTableProps> = ({
                     className="th-sort th-sort-num"
                     onClick={() => handleSort('energyAboveHull')}
                   >
-                    <span>E_hull</span>
+                    <span title="Energy above hull, eV/atom: 0 means stable">Instability</span>
                     <ArrowUpDown size={13} aria-hidden="true" />
                   </button>
                 </th>
@@ -126,7 +126,7 @@ export const MaterialsTable: React.FC<MaterialsTableProps> = ({
                     className="th-sort"
                     onClick={() => handleSort('earthAbundanceScore')}
                   >
-                    <span>Abundance / Risk</span>
+                    <span>Abundance / supply risk</span>
                     <ArrowUpDown size={13} aria-hidden="true" />
                   </button>
                 </th>
@@ -136,7 +136,7 @@ export const MaterialsTable: React.FC<MaterialsTableProps> = ({
                     className="th-sort th-sort-num"
                     onClick={() => handleSort('trl')}
                   >
-                    <span>TRL</span>
+                    <span title="Technology readiness level, 1 (lab idea) to 9 (in mass production)">Readiness (TRL)</span>
                     <ArrowUpDown size={13} aria-hidden="true" />
                   </button>
                 </th>
@@ -156,7 +156,7 @@ export const MaterialsTable: React.FC<MaterialsTableProps> = ({
                     <td>
                       <div className="cell-formula-row">
                         <span className="cell-formula">{m.formula}</span>
-                        {isPareto && <span className="pareto-badge">Pareto</span>}
+                        {isPareto && <span className="pareto-badge" title="Pareto frontier: a best trade-off">Best trade-off</span>}
                       </div>
                       <div className="cell-sub">{m.name}</div>
                     </td>

@@ -32,23 +32,23 @@ export const FocusClassifierPanel: React.FC<FocusClassifierPanelProps> = ({
 
   const impedanceTier =
     impedanceKohm <= 20
-      ? 'Clinical Wet Gel (5 - 20 kOhm)'
+      ? 'Hospital gel sensors, best contact (5 - 20 kOhm)'
       : impedanceKohm <= 80
-        ? 'Saline / Seated Dry (20 - 80 kOhm)'
-        : 'High-Impedance Dry (> 80 kOhm)';
+        ? 'Damp pads or a well-seated dry sensor (20 - 80 kOhm)'
+        : 'Dry sensor through hair, poor contact (> 80 kOhm)';
 
   return (
     <div className="panel">
       <div className="panel-header">
         <div>
-          <h2 className="panel-title">Live Focus Index &amp; Controls</h2>
+          <h2 className="panel-title">Live focus score &amp; controls</h2>
           <p className="panel-subtitle">
-            Real-time spectral ratios &amp; 4-state softmax classifier
+            Compares fast and slow rhythms to guess how focused the brain is
           </p>
         </div>
         {!isCsvMode && (
           <button type="button" className="chip-btn" onClick={onResetMultipliers}>
-            Reset Gains
+            Reset sliders
           </button>
         )}
       </div>
@@ -56,7 +56,7 @@ export const FocusClassifierPanel: React.FC<FocusClassifierPanelProps> = ({
       {/* Primary KPI Strip */}
       <div className="kpi-grid">
         <div className="kpi-card kpi-card-accent" style={{ borderColor: focusTone }}>
-          <span className="kpi-label">Focus Index</span>
+          <span className="kpi-label">Focus score (focus index)</span>
           <div className="kpi-value-row">
             <span className="kpi-value" style={{ color: focusTone }}>
               {snapshot.focusIndex}
@@ -67,15 +67,15 @@ export const FocusClassifierPanel: React.FC<FocusClassifierPanelProps> = ({
         </div>
 
         <div className="kpi-card">
-          <span className="kpi-label">Engagement</span>
+          <span className="kpi-label">Engagement: fast vs slow</span>
           <div className="kpi-value-row">
             <span className="kpi-value">{snapshot.engagementIndex.toFixed(2)}</span>
           </div>
-          <span className="kpi-meta">&beta; / (&alpha; + &theta;)</span>
+          <span className="kpi-meta">&beta; / (&alpha; + &theta;), higher = more engaged</span>
         </div>
 
         <div className="kpi-card">
-          <span className="kpi-label">Theta / Beta</span>
+          <span className="kpi-label">Slow / fast (theta / beta)</span>
           <div className="kpi-value-row">
             <span className="kpi-value">{snapshot.thetaBetaRatio.toFixed(2)}</span>
           </div>
@@ -83,23 +83,29 @@ export const FocusClassifierPanel: React.FC<FocusClassifierPanelProps> = ({
         </div>
 
         <div className="kpi-card">
-          <span className="kpi-label">Frontal FAA</span>
+          <span className="kpi-label">Left-right balance (FAA)</span>
           <div className="kpi-value-row">
             <span className="kpi-value">
               {snapshot.frontalAlphaAsymmetry >= 0 ? '+' : ''}
               {snapshot.frontalAlphaAsymmetry.toFixed(2)}
             </span>
           </div>
-          <span className="kpi-meta">SNR {snapshot.estimatedSnrDb.toFixed(1)} dB</span>
+          <span className="kpi-meta">Signal vs noise (SNR) {snapshot.estimatedSnrDb.toFixed(1)} dB</span>
         </div>
       </div>
 
       {/* 4-State Posterior Classifier */}
       <div className="sub-section">
         <div className="sub-section-head">
-          <h3 className="sub-title">4-State Posterior</h3>
-          <span className="muted-sm">Softmax confidence</span>
+          <h3 className="sub-title">Which state is it? (classifier)</h3>
+          <span className="muted-sm">Confidence for each of 4 states</span>
         </div>
+        <p className="eeg-hint">
+          How it decides: a hand-tuned scoring rule, not a trained neural network. It scores each
+          state from the share of each rhythm, then turns the scores into percentages that add up to
+          100 (softmax). The waves are simulated, so this shows the method, not a measured accuracy.
+          Worse sensor contact makes it less sure.
+        </p>
         <div className="posterior-list">
           {PRESET_ORDER.map((id) => {
             const p = snapshot.stateProbabilities[id] * 100;
@@ -131,7 +137,7 @@ export const FocusClassifierPanel: React.FC<FocusClassifierPanelProps> = ({
       {!isCsvMode && (
         <div className="sub-section">
           <div className="sub-section-head">
-            <h3 className="sub-title">Band Gain Modulators</h3>
+            <h3 className="sub-title">Boost or cut each rhythm (band gain)</h3>
             <span className="muted-sm">0.2x - 2.5x</span>
           </div>
           <div className="sliders-stack">
@@ -167,7 +173,7 @@ export const FocusClassifierPanel: React.FC<FocusClassifierPanelProps> = ({
       {/* Dry-Electrode Impedance / SNR Stress Slider */}
       <div className="sub-section impedance-box">
         <div className="slider-meta">
-          <span className="slider-name">Electrode Contact Impedance</span>
+          <span className="slider-name">Sensor-to-skin contact (impedance)</span>
           <span className="mono-strong">{impedanceKohm} kOhm</span>
         </div>
         <input
@@ -184,11 +190,14 @@ export const FocusClassifierPanel: React.FC<FocusClassifierPanelProps> = ({
           <span className="muted-sm">{impedanceTier}</span>
           <span className="mono-sm">SNR {snapshot.estimatedSnrDb.toFixed(1)} dB</span>
         </div>
+        <p className="eeg-hint">
+          Lower is better. Higher resistance lets more noise in, so signal vs noise (SNR) falls.
+        </p>
       </div>
 
       {/* Collapsible DSP Equations & Method Drawer */}
       <details className="editorial-details">
-        <summary>DSP equations &amp; digital filter specs</summary>
+        <summary>The maths: formulas and filter specs</summary>
         <div className="details-body">
           <p className="formula-line">
             <code>Engagement = P(Beta) / (P(Alpha) + P(Theta))</code> (Pope / NASA index)
@@ -197,14 +206,14 @@ export const FocusClassifierPanel: React.FC<FocusClassifierPanelProps> = ({
             <code>FAA = ln(P_AF8(Alpha)) - ln(P_AF7(Alpha))</code> (approach vs withdrawal)
           </p>
           <p className="formula-line">
-            <code>Notch 50 Hz:</code> Zero-phase forward-backward 2nd-order IIR biquad (Q = 8.0)
+            <code>Notch 50 Hz:</code> cuts a narrow slice around 50 Hz; zero-phase forward-backward 2nd-order IIR biquad (Q = 8.0)
           </p>
           <p className="formula-line">
-            <code>Bandpass 1.5-40 Hz:</code> Zero-phase Butterworth HP (1.5 Hz) + LP (40 Hz)
+            <code>Bandpass 1.5-40 Hz:</code> keeps 1.5 to 40 Hz only; zero-phase Butterworth HP (1.5 Hz) + LP (40 Hz)
             cascade
           </p>
           <p className="formula-line">
-            <code>PSD:</code> 512-point Hann-windowed Radix-2 Cooley-Tukey FFT (0.5 Hz bin width at
+            <code>PSD (power spectrum):</code> 512-point Hann-windowed Radix-2 Cooley-Tukey FFT (0.5 Hz bin width at
             256 Hz)
           </p>
         </div>

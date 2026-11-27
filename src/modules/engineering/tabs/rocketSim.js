@@ -1,7 +1,7 @@
 const PROPELLANTS = {
-  methalox: { label: 'Methalox (CH4 / LOX) — 355s Isp', isp: 355, costPerKg: 0.35 },
-  kerolox: { label: 'Kerolox (RP-1 / LOX) — 315s Isp', isp: 315, costPerKg: 0.45 },
-  hydrolox: { label: 'Hydrolox (LH2 / LOX) — 435s Isp', isp: 435, costPerKg: 2.1 }
+  methalox: { label: 'Methane + oxygen (methalox), 355 s Isp', isp: 355, costPerKg: 0.35 },
+  kerolox: { label: 'Kerosene + oxygen (kerolox), 315 s Isp', isp: 315, costPerKg: 0.45 },
+  hydrolox: { label: 'Hydrogen + oxygen (hydrolox), 435 s Isp', isp: 435, costPerKg: 2.1 }
 };
 
 const G0 = 9.80665;
@@ -131,13 +131,13 @@ function buildLogChartSvg(reuses, massRatio, propKey, current) {
       <!-- By-analogy precedent band -->
       <rect x="${padL}" y="${bandTop.toFixed(1)}" width="${plotW}" height="${(bandBot - bandTop).toFixed(1)}" fill="#fef2f2" opacity="0.9" />
       <line x1="${padL}" y1="${yForCost(LEGACY_PRECEDENT_PER_KG).toFixed(1)}" x2="${W - padR}" y2="${yForCost(LEGACY_PRECEDENT_PER_KG).toFixed(1)}" stroke="#b91c1c" stroke-width="1.2" stroke-dasharray="5 4" />
-      <text x="${W - padR - 6}" y="${(bandTop + 14).toFixed(1)}" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="11" fill="#b91c1c">By-Analogy Precedent ($12k-$54k/kg)</text>
+      <text x="${W - padR - 6}" y="${(bandTop + 14).toFixed(1)}" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="11" fill="#b91c1c">Old throwaway rockets ($12k-$54k/kg)</text>
 
       <!-- Propellant physics floor -->
       ${
         validCurve
           ? `<line x1="${padL}" y1="${propY.toFixed(1)}" x2="${W - padR}" y2="${propY.toFixed(1)}" stroke="#15803d" stroke-width="1.3" stroke-dasharray="4 3" />
-             <text x="${W - padR - 6}" y="${(propY - 6).toFixed(1)}" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="11" fill="#15803d">Propellant Physics Floor (${formatUsdKg(current.propFloorPerKg)})</text>`
+             <text x="${W - padR - 6}" y="${(propY - 6).toFixed(1)}" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="11" fill="#15803d">Fuel-only cost floor (${formatUsdKg(current.propFloorPerKg)})</text>`
           : ''
       }
 
@@ -149,12 +149,12 @@ function buildLogChartSvg(reuses, massRatio, propKey, current) {
              <circle cx="${curX.toFixed(1)}" cy="${curY.toFixed(1)}" r="6" fill="#1d4ed8" stroke="#ffffff" stroke-width="2" />
              <rect x="${Math.min(W - 148, Math.max(padL + 6, curX - 58)).toFixed(1)}" y="${Math.max(padT + 4, curY - 34).toFixed(1)}" width="116" height="24" rx="3" fill="#111111" />
              <text x="${Math.min(W - 90, Math.max(padL + 64, curX)).toFixed(1)}" y="${Math.max(padT + 20, curY - 18).toFixed(1)}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#ffffff">${formatUsdKg(current.costPerKg)}</text>`
-          : `<text x="${padL + plotW / 2}" y="${padT + plotH / 2}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" fill="#b91c1c">Mass ratio too low to reach LEO (increase ratio or Isp)</text>`
+          : `<text x="${padL + plotW / 2}" y="${padT + plotH / 2}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" fill="#b91c1c">Too little fuel to reach orbit (raise the fuel ratio or Isp)</text>`
       }
 
       <!-- Axes Labels -->
-      <text x="${padL + plotW / 2}" y="${H - 8}" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#555555">Flights per Vehicle (Reuse Count, log scale)</text>
-      <text x="16" y="${padT + plotH / 2}" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#555555" transform="rotate(-90 16 ${padT + plotH / 2})">USD / kg to LEO (log)</text>
+      <text x="${padL + plotW / 2}" y="${H - 8}" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#555555">Flights per rocket (reuse count, log scale)</text>
+      <text x="16" y="${padT + plotH / 2}" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#555555" transform="rotate(-90 16 ${padT + plotH / 2})">Dollars per kg to low orbit (log)</text>
     </svg>
   `;
 }
@@ -167,16 +167,17 @@ export function initRocketSim(container) {
   container.innerHTML = `
     <div class="section-head">
       <div>
-        <h2>Rocket reuse vs $/kg to orbit</h2>
-        <p class="section-lead">Drag reuse from 1 to 100 flights and watch $/kg to LEO fall toward the propellant floor (Tsiolkovsky).</p>
+        <h2>Rocket reuse vs cost per kg to orbit</h2>
+        <p class="section-lead">Drag reuse from 1 to 100 flights and watch the price of lifting 1 kg to low Earth orbit (LEO, about 200 to 2,000 km up) fall toward the cost of the fuel alone.</p>
+        <p class="plain-hint">The physics is the Tsiolkovsky rocket equation: a rule that says how much fuel you must burn to gain a given change in speed (delta-v). Reaching orbit needs about 9.3 km/s of delta-v here, including losses to gravity and air drag.</p>
       </div>
     </div>
 
     <div class="preset-row" id="rk-presets" role="group" aria-label="Reusability presets">
-      <button type="button" class="pill-btn" data-reuse="1">1 Flight (Expendable)</button>
-      <button type="button" class="pill-btn" data-reuse="10">10 Flights (Early Reuse)</button>
-      <button type="button" class="pill-btn" data-reuse="50">50 Flights (Fleet)</button>
-      <button type="button" class="pill-btn" data-reuse="100">100 Flights (Airline-Like)</button>
+      <button type="button" class="pill-btn" data-reuse="1">1 flight (throwaway)</button>
+      <button type="button" class="pill-btn" data-reuse="10">10 flights (early reuse)</button>
+      <button type="button" class="pill-btn" data-reuse="50">50 flights (fleet)</button>
+      <button type="button" class="pill-btn" data-reuse="100">100 flights (like an airliner)</button>
     </div>
 
     <div class="grid-2 visual-wide">
@@ -187,34 +188,37 @@ export function initRocketSim(container) {
       </div>
 
       <div class="card">
-        <h3 class="card-title">Vehicle Physics Controls</h3>
-        <p class="card-copy">Adjust reuse count, fuel-to-dry mass ratio, and propellant chemistry.</p>
+        <h3 class="card-title">Rocket controls</h3>
+        <p class="card-copy">Change how many times each rocket flies, how much fuel it carries for its empty weight, and which fuel it burns.</p>
 
         <div class="field-group">
           <label class="field-label" for="rk-reuse">
-            <span>Reuse Count (Flights / Vehicle)</span>
+            <span>Flights per rocket (reuse count)</span>
             <span class="field-value" id="rk-reuse-val">1 flight</span>
           </label>
           <input type="range" id="rk-reuse" min="1" max="100" step="1" value="1" />
+          <p class="plain-hint">The $120M build cost is shared across every flight.</p>
         </div>
 
         <div class="field-group">
           <label class="field-label" for="rk-ratio">
-            <span>Propellant / Dry-Mass Ratio</span>
+            <span>Fuel weight per kg of empty rocket (mass ratio)</span>
             <span class="field-value" id="rk-ratio-val">12.5 : 1</span>
           </label>
           <input type="range" id="rk-ratio" min="5" max="18" step="0.5" value="12.5" />
+          <p class="plain-hint">Lighter tanks and engines mean more fuel per kg of metal, and more room for cargo.</p>
         </div>
 
         <div class="field-group">
           <label class="field-label" for="rk-prop">
-            <span>Propellant Chemistry (Isp)</span>
+            <span>Fuel type (specific impulse, Isp)</span>
           </label>
           <select id="rk-prop">
             ${Object.entries(PROPELLANTS)
               .map(([k, v]) => `<option value="${k}">${v.label}</option>`)
               .join('')}
           </select>
+          <p class="plain-hint">Isp is fuel efficiency, measured in seconds: how long 1 kg of fuel can push with 1 kg of force. Higher means more speed from the same fuel.</p>
         </div>
 
         <div class="kpi-grid" id="rk-breakdown" style="margin-top:14px; margin-bottom:0;"></div>
@@ -222,11 +226,12 @@ export function initRocketSim(container) {
     </div>
 
     <details class="theory-drawer">
-      <summary>Tsiolkovsky Equation &amp; Why Reuse Changes Everything</summary>
+      <summary>The rocket equation, and why reuse matters so much</summary>
       <div class="drawer-body">
         <div class="equation-block">Delta-v = Isp * g0 * ln(m0 / mf)   |   $/kg = (C_vehicle / N + C_refurb + C_propellant) / m_payload</div>
-        <p>By analogy, rockets were priced like disposable aerospace hardware ($12,000-$54,000/kg to LEO). From first principles, propellant is less than 1% of a rocket's build cost.</p>
-        <p>Once a rocket survives 100 flights like a commercial airliner, hardware amortization shrinks 100x and launch pricing converges on fuel cost plus turnaround ops.</p>
+        <p>In words: change in speed (delta-v) = fuel efficiency (Isp) x gravity (g0, 9.81 m/s²) x the natural log of full weight (m0) divided by empty weight (mf). Cost per kg = (build cost shared over N flights + refurbishing + fuel) divided by cargo weight.</p>
+        <p>Rockets used to be priced like throwaway aerospace hardware ($12,000 to $54,000 per kg to low orbit). Yet at one flight, fuel is well under 1% of the cost of a launch in this model.</p>
+        <p>If a rocket flies 100 times like an airliner, each flight carries only 1/100th of the build cost (amortization), so the price heads toward fuel plus turnaround work.</p>
       </div>
     </details>
   `;
@@ -261,34 +266,34 @@ export function initRocketSim(container) {
 
     kpisEl.innerHTML = `
       <div class="kpi-box ${costTone}">
-        <span class="kpi-label">Cost to LEO</span>
+        <span class="kpi-label">Cost per kg to orbit</span>
         <span class="kpi-value">${formatUsdKg(res.costPerKg)}</span>
-        <span class="kpi-sub">Precedent: $18.5k/kg</span>
+        <span class="kpi-sub">Old throwaway rockets: $18.5k/kg</span>
       </div>
       <div class="kpi-box">
-        <span class="kpi-label">Vs Precedent</span>
+        <span class="kpi-label">Vs old rockets</span>
         <span class="kpi-value">${valid ? `${vsPrecedent.toFixed(0)}x` : '—'}</span>
         <span class="kpi-sub">cheaper per kg</span>
       </div>
       <div class="kpi-box">
-        <span class="kpi-label">Payload to LEO</span>
+        <span class="kpi-label">Cargo to orbit (payload)</span>
         <span class="kpi-value">${res.payloadKg > 50 ? `${(res.payloadKg / 1000).toFixed(1)} t` : '0 t'}</span>
-        <span class="kpi-sub">${(res.totalPayloadFrac * 100).toFixed(2)}% of GLOW</span>
+        <span class="kpi-sub">${(res.totalPayloadFrac * 100).toFixed(2)}% of liftoff weight</span>
       </div>
       <div class="kpi-box">
-        <span class="kpi-label">Propellant Share</span>
+        <span class="kpi-label">Fuel share of cost</span>
         <span class="kpi-value">${valid ? `${res.propSharePct.toFixed(1)}%` : '—'}</span>
-        <span class="kpi-sub">Floor: ${formatUsdKg(res.propFloorPerKg)}</span>
+        <span class="kpi-sub">Fuel-only floor: ${formatUsdKg(res.propFloorPerKg)}</span>
       </div>
     `;
 
     breakdownEl.innerHTML = `
       <div class="kpi-box">
-        <span class="kpi-label">Hardware / Flight</span>
+        <span class="kpi-label">Rocket build cost per flight</span>
         <span class="kpi-value">$${(res.hardwarePerFlight / 1e6).toFixed(2)}M</span>
       </div>
       <div class="kpi-box">
-        <span class="kpi-label">Propellant / Flight</span>
+        <span class="kpi-label">Fuel cost per flight</span>
         <span class="kpi-value">$${(res.propCostPerFlight / 1e6).toFixed(2)}M</span>
       </div>
     `;
@@ -298,29 +303,29 @@ export function initRocketSim(container) {
     if (!valid) {
       diagEl.innerHTML = `
         <div class="diagnosis-box is-danger">
-          <p class="diagnosis-tag">Tsiolkovsky Limit Reached</p>
-          <p class="diagnosis-text">At ${massRatio.toFixed(1)}:1 mass ratio and ${res.prop.isp}s Isp, structural mass consumes the entire orbital budget. Raise mass ratio or Isp.</p>
+          <p class="diagnosis-tag">Cannot reach orbit (rocket equation limit)</p>
+          <p class="diagnosis-text">At ${massRatio.toFixed(1)}:1 fuel to empty weight and ${res.prop.isp} s Isp, the rocket's own structure uses up all the speed it can gain, leaving nothing for cargo. Raise the fuel ratio or pick a more efficient fuel.</p>
         </div>
       `;
     } else if (reuses === 1) {
       diagEl.innerHTML = `
         <div class="diagnosis-box is-warn">
-          <p class="diagnosis-tag">Expendable Trap (Propellant is ${res.propSharePct.toFixed(2)}% of Cost)</p>
+          <p class="diagnosis-tag">Throwaway trap (fuel is only ${res.propSharePct.toFixed(2)}% of the cost)</p>
           <p class="diagnosis-text">Throwing away a $120M booster after one flight leaves cost at ${formatUsdKg(res.costPerKg)} even though fuel costs only ${formatUsdKg(res.propFloorPerKg)}.</p>
         </div>
       `;
     } else if (reuses >= 50) {
       diagEl.innerHTML = `
         <div class="diagnosis-box is-success">
-          <p class="diagnosis-tag">Airline Economics (${vsPrecedent.toFixed(0)}x Below Precedent)</p>
-          <p class="diagnosis-text">At ${reuses} flights, hardware amortization collapses to $${(res.hardwarePerFlight / 1e6).toFixed(2)}M/launch and propellant climbs to ${res.propSharePct.toFixed(1)}% of flight cost.</p>
+          <p class="diagnosis-tag">Airline economics (${vsPrecedent.toFixed(0)}x cheaper than old rockets)</p>
+          <p class="diagnosis-text">At ${reuses} flights, each launch's share of the build cost drops to $${(res.hardwarePerFlight / 1e6).toFixed(2)}M/launch and propellant climbs to ${res.propSharePct.toFixed(1)}% of flight cost.</p>
         </div>
       `;
     } else {
       diagEl.innerHTML = `
         <div class="diagnosis-box">
-          <p class="diagnosis-tag">Partial Amortization (${reuses} Flights)</p>
-          <p class="diagnosis-text">Cost drops to ${formatUsdKg(res.costPerKg)} (${vsPrecedent.toFixed(0)}x below expendable precedent). Keep pushing reuse toward 100 flights to approach the fuel floor.</p>
+          <p class="diagnosis-tag">Build cost partly shared (${reuses} flights)</p>
+          <p class="diagnosis-text">Cost drops to ${formatUsdKg(res.costPerKg)} (${vsPrecedent.toFixed(0)}x cheaper than old throwaway rockets). Keep pushing reuse toward 100 flights to approach the fuel floor.</p>
         </div>
       `;
     }

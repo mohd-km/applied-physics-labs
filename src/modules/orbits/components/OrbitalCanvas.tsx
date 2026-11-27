@@ -346,15 +346,15 @@ export const OrbitalCanvas: React.FC<OrbitalCanvasProps> = ({
         <div>
           <div className="lab-step">01 / astrodynamics</div>
           <h2 id="orbital-lab-heading" className="lab-card-title">
-            LEO to GEO orbit & delta-v
+            How high a satellite flies, and what it costs
           </h2>
           <p className="lab-card-desc">
-            Dial altitude from 200 km LEO to 35,786 km GEO: circular velocity, period, latency and Hohmann delta-v update live.
+            Drag the height from 200 km (low orbit, LEO, where Starlink and the space station fly) up to 35,786 km (geostationary orbit, GEO, where a satellite hangs over one spot). Speed, lap time, signal delay and the extra rocket push needed all update live.
           </p>
         </div>
         <div className="status-pill">
           <Orbit size={14} aria-hidden="true" />
-          <span>{metrics.regime} Shell</span>
+          <span>{metrics.regime === 'LEO' ? 'Low orbit (LEO)' : metrics.regime === 'MEO' ? 'Middle orbit (MEO)' : 'High orbit (GEO)'}</span>
         </div>
       </div>
 
@@ -366,6 +366,9 @@ export const OrbitalCanvas: React.FC<OrbitalCanvasProps> = ({
             className="figure-canvas"
             aria-label="Animated 2D Earth orbit simulation showing satellite, ground terminal, RF slant path, and Hohmann transfer ellipse"
           />
+          <p className="plain-hint figure-hint">
+            The dashed ellipse is the cheapest two-burn route up from a 550 km orbit (a Hohmann transfer). The 1x to 600x buttons speed up time.
+          </p>
           <div className="figure-toolbar">
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
               <button
@@ -393,7 +396,7 @@ export const OrbitalCanvas: React.FC<OrbitalCanvasProps> = ({
                 className={`figure-btn ${showHohmann ? 'active' : ''}`}
                 onClick={() => setShowHohmann((s) => !s)}
               >
-                Hohmann Path
+                Transfer path (Hohmann)
               </button>
               <button
                 type="button"
@@ -402,7 +405,7 @@ export const OrbitalCanvas: React.FC<OrbitalCanvasProps> = ({
                   onAltitudeChange(550);
                   onElevationChange(45);
                 }}
-                title="Reset to 550 km Starlink shell"
+                title="Reset to 550 km Starlink orbit" aria-label="Reset to 550 km Starlink orbit"
               >
                 <RotateCcw size={14} />
               </button>
@@ -414,7 +417,7 @@ export const OrbitalCanvas: React.FC<OrbitalCanvasProps> = ({
         <div className="controls-panel">
           <div>
             <div className="kpi-label" style={{ marginBottom: '6px' }}>
-              Orbit Presets
+              Quick picks (real satellites)
             </div>
             <div className="preset-row">
               {ORBIT_PRESETS.map((preset) => (
@@ -433,7 +436,7 @@ export const OrbitalCanvas: React.FC<OrbitalCanvasProps> = ({
           <div className="control-group">
             <div className="control-header">
               <label htmlFor="altitude-slider" className="control-label">
-                Orbital Altitude (log scale)
+                Height above Earth (altitude, log scale)
               </label>
               <span className="control-value">
                 {Math.round(altitudeKm).toLocaleString()} km
@@ -454,15 +457,16 @@ export const OrbitalCanvas: React.FC<OrbitalCanvasProps> = ({
               <span>20,200 km MEO</span>
               <span>35,786 km GEO</span>
             </div>
+            <p className="plain-hint">LEO = low orbit, MEO = middle orbit (GPS), GEO = geostationary, one lap per day so it seems to stand still.</p>
           </div>
 
           <div className="control-group">
             <div className="control-header">
               <label htmlFor="elevation-slider" className="control-label">
-                Ground Terminal Elevation Angle
+                How high in your sky the satellite sits (elevation angle)
               </label>
               <span className="control-value">
-                {elevationDeg} deg (slant {Math.round(metrics.slantRangeKm).toLocaleString()} km)
+                {elevationDeg} deg (straight-line distance {Math.round(metrics.slantRangeKm).toLocaleString()} km)
               </span>
             </div>
             <input
@@ -477,48 +481,52 @@ export const OrbitalCanvas: React.FC<OrbitalCanvasProps> = ({
             <div className="slider-ticks">
               <span>25 deg (horizon edge)</span>
               <span>55 deg</span>
-              <span>90 deg (zenith)</span>
+              <span>90 deg (overhead)</span>
             </div>
+            <p className="plain-hint">Lower in the sky means the signal travels further at a slant, so it is weaker and slower.</p>
           </div>
 
           <div className="kpi-grid">
             <div className="kpi-tile">
-              <div className="kpi-label">Orbital Velocity</div>
+              <div className="kpi-label">Speed in orbit</div>
               <div className="kpi-value">{metrics.orbitalVelocityKmS.toFixed(2)} km/s</div>
               <div className="kpi-sub">{Math.round(metrics.orbitalVelocityKmH).toLocaleString()} km/h</div>
             </div>
 
             <div className="kpi-tile">
-              <div className="kpi-label">Orbital Period</div>
+              <div className="kpi-label">Time for one lap (period)</div>
               <div className="kpi-value">{periodLabel}</div>
               <div className="kpi-sub">
-                {metrics.orbitsPerDay.toFixed(1)} orbits/day | pass {passLabel}
+                {metrics.orbitsPerDay.toFixed(1)} laps/day | in view {passLabel}
               </div>
             </div>
 
             <div className="kpi-tile">
-              <div className="kpi-label">Round-Trip Latency</div>
+              <div className="kpi-label">Signal delay there and back (latency)</div>
               <div className="kpi-value">{metrics.singleHopRttMs.toFixed(1)} ms</div>
               <div className="kpi-sub">
-                1-way {metrics.oneWayLatencyMs.toFixed(1)} ms | gw hop {metrics.gatewayHopRttMs.toFixed(1)} ms
+                1-way {metrics.oneWayLatencyMs.toFixed(1)} ms | via ground station {metrics.gatewayHopRttMs.toFixed(1)} ms
               </div>
             </div>
 
             <div className="kpi-tile">
-              <div className="kpi-label">Required Delta-V</div>
+              <div className="kpi-label">Total speed change a rocket must supply (delta-v)</div>
               <div className="kpi-value">{metrics.totalLaunchDeltaVKmS.toFixed(2)} km/s</div>
               <div className="kpi-sub">
-                Hohmann +{metrics.hohmannTotalKmS.toFixed(2)} km/s | {metrics.methaloxMassFractionPct.toFixed(1)}% fuel
+                transfer +{metrics.hohmannTotalKmS.toFixed(2)} km/s | {metrics.methaloxMassFractionPct.toFixed(1)}% of lift-off mass is fuel
               </div>
             </div>
           </div>
 
+          <p className="plain-hint">
+            Delta-v is the rocket's speed budget: about 9.4 km/s just to reach low orbit once air drag and gravity losses are paid. The fuel share comes from the rocket equation (Tsiolkovsky) for a single stage with methane engines rated at 350 s (specific impulse, a fuel-efficiency score: higher means more push per kilo of fuel).
+          </p>
           <div className="kpi-tile" style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
             <span className="kpi-label" style={{ margin: 0 }}>
-              Local Gravity: <strong className="mono" style={{ color: 'var(--ink)' }}>{metrics.gravityPercent.toFixed(1)}%</strong> ({metrics.gravityMs2.toFixed(2)} m/s^2)
+              Gravity left at this height: <strong className="mono" style={{ color: 'var(--ink)' }}>{metrics.gravityPercent.toFixed(1)}%</strong> ({metrics.gravityMs2.toFixed(2)} m/s^2)
             </span>
             <span className="kpi-label" style={{ margin: 0 }}>
-              Escape Speed: <strong className="mono" style={{ color: 'var(--ink)' }}>{metrics.escapeVelocityKmS.toFixed(2)} km/s</strong>
+              Speed to leave Earth for good (escape speed): <strong className="mono" style={{ color: 'var(--ink)' }}>{metrics.escapeVelocityKmS.toFixed(2)} km/s</strong>
             </span>
           </div>
         </div>

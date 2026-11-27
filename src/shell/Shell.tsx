@@ -1,6 +1,7 @@
 import React, { Suspense, useEffect, useState } from 'react';
 
 export type Provenance = { kind: 'real' | 'model' | 'synthetic'; label: string };
+export type Story = { what: string; how: string; tryThis: string };
 export type TabDef = {
   id: string;
   label: string;
@@ -9,6 +10,7 @@ export type TabDef = {
   scope: string; // module folder name, wrapper gets class m-<scope>
   provenance: Provenance[];
   note?: string;
+  story?: Story;
   load: () => Promise<{ default: React.ComponentType }>;
   component?: React.ComponentType; // statically bundled default tab: paints with the first JS pass
 };
@@ -126,6 +128,13 @@ export function Shell({ config }: { config: ShellConfig }) {
           ))}
           {cur.note ? <span>{cur.note}</span> : null}
         </div>
+        {cur.story ? (
+          <div className="sh-story" aria-label="About this lab">
+            <p><b>What this lab shows.</b> {cur.story.what}</p>
+            <p><b>How it works.</b> {cur.story.how}</p>
+            <p className="sh-story-try"><b>Try this first.</b> {cur.story.tryThis}</p>
+          </div>
+        ) : null}
       </div>
       <main className="sh-main">
         {config.tabs.filter((t) => visited.includes(t.id)).map((t) => {

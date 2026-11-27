@@ -26,10 +26,10 @@ interface FilterPanelProps {
 }
 
 const RISK_MODES: { id: RiskFilterMode; label: string }[] = [
-  { id: 'all', label: 'All Tiers' },
-  { id: 'abundant-only', label: 'Abundant Only' },
-  { id: 'exclude-critical', label: 'No Critical' },
-  { id: 'critical-only', label: 'Critical Only' },
+  { id: 'all', label: 'All' },
+  { id: 'abundant-only', label: 'Low risk only' },
+  { id: 'exclude-critical', label: 'Hide critical' },
+  { id: 'critical-only', label: 'Critical only' },
 ];
 
 export const FilterPanel: React.FC<FilterPanelProps> = ({
@@ -55,7 +55,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   return (
     <aside className="card filter-card" aria-label="Pareto Spec Screener Controls">
       <div className="filter-header">
-        <h2 className="card-title">Spec Screener</h2>
+        <h2 className="card-title">Your requirements</h2>
         {hasActiveFilters && (
           <button type="button" className="btn-reset" onClick={onReset}>
             <RotateCcw size={14} aria-hidden="true" />
@@ -67,11 +67,12 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
       {/* Target Band Gap Range */}
       <div className="filter-group">
         <div className="slider-header">
-          <span className="filter-label">Target Band Gap (E_g)</span>
+          <span className="filter-label">Electron energy step (band gap, E_g)</span>
           <span className="mono-value accent-mono">
             {bandGapMin.toFixed(1)}–{bandGapMax.toFixed(1)} eV
           </span>
         </div>
+        <p className="mat-hint">Energy needed to free an electron, in electron-volts (eV). About 1.1 to 1.6 eV suits solar cells; above 3 eV suits high-voltage chips and battery separators.</p>
 
         <div className="dual-slider-stack">
           <label className="sub-slider-row" htmlFor="bg-min-slider">
@@ -115,10 +116,11 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
       <div className="filter-group">
         <div className="slider-header">
           <label htmlFor="hull-slider" className="filter-label">
-            Stability Cutoff (E_hull)
+            How unstable is allowed (energy above hull, E_hull)
           </label>
-          <span className="mono-value">&le; {maxHull.toFixed(3)} eV/at</span>
+          <span className="mono-value">&le; {maxHull.toFixed(3)} eV/atom</span>
         </div>
+        <p className="mat-hint">How far a crystal sits above its most stable form, in energy per atom. 0 means fully stable; up to about 0.025 can usually still be made in a lab.</p>
         <input
           id="hull-slider"
           type="range"
@@ -131,7 +133,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
         />
         <div className="slider-scale">
           <span>0.000</span>
-          <span>0.025 (synth.)</span>
+          <span>0.025 (makeable)</span>
           <span>0.065</span>
         </div>
       </div>
@@ -140,10 +142,11 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
       <div className="filter-group">
         <div className="slider-header">
           <label htmlFor="abundance-slider" className="filter-label">
-            Min Earth Abundance
+            Minimum earth abundance
           </label>
           <span className="mono-value">&ge; {minAbundance} / 100</span>
         </div>
+        <p className="mat-hint">How common and easy to source the crystal's elements are. 100 means plentiful (like iron or silicon).</p>
         <input
           id="abundance-slider"
           type="range"
@@ -163,7 +166,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 
       {/* Supply Risk Tier */}
       <div className="filter-group">
-        <span className="filter-label">Supply Risk Tier</span>
+        <span className="filter-label">Supply risk (could the elements run short?)</span>
         <div className="pill-grid">
           {RISK_MODES.map((m) => (
             <button
@@ -182,7 +185,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
       {/* Search */}
       <div className="filter-group">
         <label htmlFor="material-search" className="filter-label">
-          Search Formula or MP ID
+          Search by formula or Materials Project ID (mp-…)
         </label>
         <div className="search-input-wrap">
           <Search size={15} className="search-icon" aria-hidden="true" />
@@ -201,7 +204,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
       <details className="editorial-details filter-details">
         <summary className="details-summary">
           <span>
-            Element Constraints
+            Include or exclude specific elements
             {excludedBottlenecks.length + requiredAbundant.length > 0
               ? ` (${excludedBottlenecks.length + requiredAbundant.length} active)`
               : ''}
@@ -211,7 +214,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           <div className="sub-filter-block">
             <span className="filter-label filter-label-icon">
               <ShieldAlert size={14} className="icon-danger" aria-hidden="true" />
-              <span>Exclude Bottlenecks</span>
+              <span>Leave out scarce elements</span>
             </span>
             <div className="element-chip-row">
               {BOTTLENECK_ELEMENTS.map((el) => {
@@ -235,7 +238,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           <div className="sub-filter-block">
             <span className="filter-label filter-label-icon">
               <Leaf size={14} className="icon-success" aria-hidden="true" />
-              <span>Require Abundant</span>
+              <span>Must contain a common element</span>
             </span>
             <div className="element-chip-row">
               {ABUNDANT_ELEMENTS.map((el) => {

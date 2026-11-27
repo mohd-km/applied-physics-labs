@@ -494,7 +494,7 @@ export const MATERIALS_DATA: MaterialRecord[] = [
     trl: 9,
     primaryBarrier: 'Ga supply concentration & native bulk wafer cost',
     commercializationAnalysis:
-      'Heteroepitaxial GaN-on-Si unlocked high-frequency 650 V power electronics and solid-state lighting. Native bulk GaN substrates remain expensive for vertical >1.2 kV devices, and gallium export controls expose supply-chain concentration.',
+      'Heteroepitaxial GaN-on-Si enabled high-frequency 650 V power electronics and solid-state lighting. Native bulk GaN substrates remain expensive for vertical >1.2 kV devices, and gallium export controls expose supply-chain concentration.',
   },
   {
     id: 'ga2o3-beta',
@@ -1058,7 +1058,7 @@ export const MATERIALS_DATA: MaterialRecord[] = [
     trl: 9,
     primaryBarrier: 'Lower gravimetric energy density than high-Ni NMC',
     commercializationAnalysis:
-      'Completely eliminates cobalt and nickel using abundant Fe and P. Initially dismissed for poor intrinsic electronic conductivity (3.70 eV gap), carbon nano-coating and particle sizing unlocked >3,000-cycle longevity and dominant global EV market share.',
+      'Completely eliminates cobalt and nickel using abundant Fe and P. Initially dismissed for poor intrinsic electronic conductivity (3.70 eV gap), carbon nano-coating and particle sizing made >3,000-cycle longevity and dominant global EV market share.',
   },
   {
     id: 'nafepo4-olivine',

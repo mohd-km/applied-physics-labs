@@ -3,9 +3,9 @@ import { initFactorySim } from './tabs/factorySim.js';
 import { initRocketSim } from './tabs/rocketSim.js';
 
 const SUBS = [
-  { key: 'idiot', idx: '01', label: 'Idiot index BOM' },
-  { key: 'factory', idx: '02', label: '8-station factory' },
-  { key: 'rocket', idx: '03', label: 'Rocket $/kg' },
+  { key: 'idiot', idx: '01', label: 'Price vs raw materials' },
+  { key: 'factory', idx: '02', label: 'Factory line' },
+  { key: 'rocket', idx: '03', label: 'Rocket launch cost' },
 ];
 
 // Renders the three engineering simulators into `root` with an internal sub-switch.

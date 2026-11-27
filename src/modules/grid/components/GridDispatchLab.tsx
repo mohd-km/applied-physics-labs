@@ -161,10 +161,15 @@ export const GridDispatchLab: React.FC<Props> = ({ inputs, onChange, summary }) 
     <section className="lab-section" id="grid-dispatch">
       <div className="section-header">
         <div>
-          <h2>24-hour dispatch & duck curve</h2>
+          <h2>A day on the grid: who supplies power each hour (dispatch) and the duck curve</h2>
           <p className="section-desc">
-            Dial generation and storage capacity to inspect hourly supply balance, renewable curtailment,
-            synchronous inertia, and true firm power $/MWh.
+            Choose how many power plants and batteries the grid has. The model then fills every hour of the
+            day from the cheapest available source and shows wasted solar, how steady the grid is, and the real
+            cost of round-the-clock power.
+          </p>
+          <p className="plain-hint">
+            Duck curve: demand minus solar and wind. It dips at midday when the sun is strong, then shoots up at
+            sunset, and the shape looks like a duck.
           </p>
         </div>
         <div className="action-row">
@@ -205,38 +210,41 @@ export const GridDispatchLab: React.FC<Props> = ({ inputs, onChange, summary }) 
       {/* Live KPI Cards */}
       <div className="kpi-grid">
         <div className="kpi-card">
-          <p className="kpi-label">True Firm Power LCOE</p>
+          <p className="kpi-label">Real cost of 24/7 power (firm LCOE)</p>
           <p className="kpi-value accent">${summary.firmLcoeUsdMWh.toFixed(1)}/MWh</p>
           <p className="kpi-meta">
-            Headline ${summary.headlineLcoeUsdMWh.toFixed(1)} + ${summary.firmingPremiumUsdMWh.toFixed(1)} firming
+            Plant-only cost ${summary.headlineLcoeUsdMWh.toFixed(1)} + ${summary.firmingPremiumUsdMWh.toFixed(1)} for storage and wasted power
           </p>
+          <p className="plain-hint">LCOE: lifetime cost per unit of electricity actually delivered. MWh: 1,000 kWh, the units on a home power bill.</p>
         </div>
 
         <div className="kpi-card">
-          <p className="kpi-label">Curtailment / Deficit</p>
+          <p className="kpi-label">Wasted clean power (curtailment) / shortfall</p>
           <p className={`kpi-value ${summary.unservedGWh > 0.05 ? 'danger' : ''}`}>
-            {summary.curtailmentPctOfVre.toFixed(1)}% VRE
+            {summary.curtailmentPctOfVre.toFixed(1)}% of solar + wind
           </p>
           <p className="kpi-meta">
-            {summary.curtailedGWh.toFixed(1)} GWh shed |{' '}
+            {summary.curtailedGWh.toFixed(1)} GWh thrown away |{' '}
             {summary.unservedGWh > 0.05
-              ? `${summary.unservedGWh.toFixed(1)} GWh deficit (${summary.deficitHours}h)`
-              : '0 GWh unserved'}
+              ? `${summary.unservedGWh.toFixed(1)} GWh short (${summary.deficitHours}h of blackouts)`
+              : 'no blackouts'}
           </p>
+          <p className="plain-hint">Curtailment: solar or wind that had to be switched off because nobody could use or store it. Lower is better.</p>
         </div>
 
         <div className="kpi-card">
-          <p className="kpi-label">Zero-Carbon Share</p>
+          <p className="kpi-label">Clean power share</p>
           <p className={`kpi-value ${summary.cleanSharePct >= 75 ? 'ok' : ''}`}>
             {summary.cleanSharePct.toFixed(1)}%
           </p>
           <p className="kpi-meta">
-            Ramp {summary.peakEveningRampGWPerHr.toFixed(1)} GW/h | ~{Math.round(summary.landFootprintKm2).toLocaleString()} km²
+            Evening ramp {summary.peakEveningRampGWPerHr.toFixed(1)} GW/h | land ~{Math.round(summary.landFootprintKm2).toLocaleString()} km²
           </p>
+          <p className="plain-hint">Ramp: how fast other plants must speed up per hour as the sun sets. Steeper is harder.</p>
         </div>
 
         <div className="kpi-card">
-          <p className="kpi-label">Min Inertia & RoCoF (50 Hz)</p>
+          <p className="kpi-label">Grid steadiness (inertia, 50 Hz)</p>
           <p
             className={`kpi-value ${
               summary.inertiaStatus === 'Low-Inertia Risk'
@@ -249,7 +257,11 @@ export const GridDispatchLab: React.FC<Props> = ({ inputs, onChange, summary }) 
             H = {summary.minInertiaSec.toFixed(2)} s
           </p>
           <p className="kpi-meta">
-            {summary.worstRocofHzPerSec.toFixed(2)} Hz/s trip | {summary.inertiaStatus}
+            Frequency could fall {summary.worstRocofHzPerSec.toFixed(2)} Hz/s if a big plant trips (RoCoF) | {summary.inertiaStatus}
+          </p>
+          <p className="plain-hint">
+            Frequency: the grid's heartbeat, 50 cycles a second. Inertia (H): seconds of spinning-turbine energy
+            that resist sudden changes. Solar and wind add none. Below 1.5 s is risky, 2.5 s or more is healthy.
           </p>
         </div>
       </div>
@@ -258,14 +270,16 @@ export const GridDispatchLab: React.FC<Props> = ({ inputs, onChange, summary }) 
       <div className="lab-grid">
         {/* Left Controls */}
         <div className="card">
-          <h3 className="card-title">Fleet & Storage Capacity</h3>
+          <h3 className="card-title">Power plants and storage you build</h3>
           <p className="card-subtitle">
-            Merit order: Nuclear baseload, Solar & Wind, LFP (86.5% RTE), Pumped Hydro (78.5% RTE), Gas.
+            Order used each hour (merit order): nuclear, then solar and wind, then batteries (LFP), then pumped
+            hydro, then gas last. RTE (round-trip efficiency) is how much stored energy comes back out.
           </p>
+          <p className="plain-hint">CF (capacity factor): share of the year a plant runs at full output. GWh: 1 GW for one hour.</p>
 
           <div className="control-group">
             <label className="control-label" htmlFor="demand-profile">
-              Demand Profile
+              Demand pattern
             </label>
             <select
               id="demand-profile"
@@ -284,7 +298,7 @@ export const GridDispatchLab: React.FC<Props> = ({ inputs, onChange, summary }) 
 
           <div className="control-group">
             <div className="control-head">
-              <label className="control-label" htmlFor="solar-slider">Solar PV (22% CF)</label>
+              <label className="control-label" htmlFor="solar-slider">Solar panels (22% CF)</label>
               <span className="control-val">{inputs.solarGW.toFixed(isSmallScale ? 1 : 0)} GW</span>
             </div>
             <div className="slider-wrap">
@@ -302,7 +316,7 @@ export const GridDispatchLab: React.FC<Props> = ({ inputs, onChange, summary }) 
 
           <div className="control-group">
             <div className="control-head">
-              <label className="control-label" htmlFor="wind-slider">Onshore Wind (34% CF)</label>
+              <label className="control-label" htmlFor="wind-slider">Wind turbines on land (34% CF)</label>
               <span className="control-val">{inputs.windGW.toFixed(isSmallScale ? 1 : 0)} GW</span>
             </div>
             <div className="slider-wrap">
@@ -320,7 +334,7 @@ export const GridDispatchLab: React.FC<Props> = ({ inputs, onChange, summary }) 
 
           <div className="control-group">
             <div className="control-head">
-              <label className="control-label" htmlFor="nuclear-slider">Nuclear PWR (92% CF)</label>
+              <label className="control-label" htmlFor="nuclear-slider">Nuclear (92% CF)</label>
               <span className="control-val">{inputs.nuclearGW.toFixed(isSmallScale ? 1 : 0)} GW</span>
             </div>
             <div className="slider-wrap">
@@ -338,7 +352,7 @@ export const GridDispatchLab: React.FC<Props> = ({ inputs, onChange, summary }) 
 
           <div className="control-group">
             <div className="control-head">
-              <label className="control-label" htmlFor="gas-slider">Natural Gas CCGT / Peaker</label>
+              <label className="control-label" htmlFor="gas-slider">Gas plants (CCGT and peakers, switch on when needed)</label>
               <span className="control-val">{inputs.gasGW.toFixed(isSmallScale ? 1 : 0)} GW</span>
             </div>
             <div className="slider-wrap">
@@ -356,7 +370,7 @@ export const GridDispatchLab: React.FC<Props> = ({ inputs, onChange, summary }) 
 
           <div className="control-group">
             <div className="control-head">
-              <label className="control-label" htmlFor="lfp-slider">LFP BESS (4h, 86.5% RTE)</label>
+              <label className="control-label" htmlFor="lfp-slider">Battery storage (LFP, 4h, 86.5% RTE)</label>
               <span className="control-val">
                 {inputs.lfpGWh.toFixed(isSmallScale ? 1 : 0)} GWh ({(inputs.lfpGWh / 4).toFixed(1)} GW)
               </span>
@@ -376,7 +390,7 @@ export const GridDispatchLab: React.FC<Props> = ({ inputs, onChange, summary }) 
 
           <div className="control-group">
             <div className="control-head">
-              <label className="control-label" htmlFor="phs-slider">Pumped Hydro (8h, 78.5% RTE)</label>
+              <label className="control-label" htmlFor="phs-slider">Pumped hydro (water pumped uphill, 8h, 78.5% RTE)</label>
               <span className="control-val">
                 {inputs.phsGWh.toFixed(isSmallScale ? 1 : 0)} GWh ({(inputs.phsGWh / 8).toFixed(1)} GW)
               </span>
@@ -399,9 +413,10 @@ export const GridDispatchLab: React.FC<Props> = ({ inputs, onChange, summary }) 
         <div className="chart-box">
           <div className="chart-header">
             <div>
-              <h3 className="card-title">Hourly Supply, Demand & Duck-Curve Net Load (GW)</h3>
+              <h3 className="card-title">Each hour: power supplied vs power needed (GW)</h3>
               <p className="card-subtitle" style={{ marginBottom: 0 }}>
-                Hover or tap any hour column to inspect dispatch, storage state of charge, and inertia.
+                Hover or tap any hour to see which plants are running, how full the stores are, and how steady the grid is.
+                Hatched tops are wasted solar and wind; red means a shortfall.
               </p>
             </div>
             <span className="mono" style={{ fontSize: 12, color: 'var(--ink-secondary)' }}>
@@ -565,7 +580,7 @@ export const GridDispatchLab: React.FC<Props> = ({ inputs, onChange, summary }) 
           <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--border)' }}>
             <div className="chart-header" style={{ marginBottom: 4 }}>
               <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink-secondary)' }}>
-                Storage State of Charge (0–100% SoC, Steady-State Cyclic Day)
+                How full the stores are (state of charge, SoC), typical repeating day
               </span>
               <span className="mono" style={{ fontSize: 12, color: 'var(--ink-muted)' }}>
                 LFP {inspected.lfpSocPct.toFixed(0)}% | PHS {inspected.phsSocPct.toFixed(0)}% at {inspected.label}
@@ -616,20 +631,20 @@ export const GridDispatchLab: React.FC<Props> = ({ inputs, onChange, summary }) 
           <div className="inspector-bar" aria-live="polite">
             <span><strong>{inspected.label}</strong></span>
             <span>Demand {inspected.demandGW.toFixed(1)} GW</span>
-            <span>Net Load {inspected.netLoadGW.toFixed(1)} GW</span>
+            <span>Left after solar + wind (net load) {inspected.netLoadGW.toFixed(1)} GW</span>
             <span>Solar {inspected.solarUsedGW.toFixed(1)} GW</span>
             <span>Wind {inspected.windUsedGW.toFixed(1)} GW</span>
-            <span>Nuc {inspected.nuclearGW.toFixed(1)} GW</span>
+            <span>Nuclear {inspected.nuclearGW.toFixed(1)} GW</span>
             <span>Gas {inspected.gasGW.toFixed(1)} GW</span>
             <span>
-              BESS {inspected.lfpDischargeGW > 0
+              Battery {inspected.lfpDischargeGW > 0
                 ? `+${inspected.lfpDischargeGW.toFixed(1)}`
                 : inspected.lfpChargeGW > 0
                   ? `-${inspected.lfpChargeGW.toFixed(1)}`
                   : '0.0'} GW
             </span>
-            <span>H = {inspected.inertiaSec.toFixed(2)}s</span>
-            <span>Clearing: {inspected.marginalSource}</span>
+            <span>Inertia H = {inspected.inertiaSec.toFixed(2)}s</span>
+            <span>Price set by: {inspected.marginalSource}</span>
           </div>
 
           {/* Legend */}
@@ -637,22 +652,22 @@ export const GridDispatchLab: React.FC<Props> = ({ inputs, onChange, summary }) 
             <span className="legend-item"><span className="swatch" style={{ background: '#334155' }} />Nuclear</span>
             <span className="legend-item"><span className="swatch" style={{ background: '#64748b' }} />Wind</span>
             <span className="legend-item"><span className="swatch" style={{ background: '#d97706' }} />Solar PV</span>
-            <span className="legend-item"><span className="swatch" style={{ background: '#0f766e' }} />LFP BESS</span>
+            <span className="legend-item"><span className="swatch" style={{ background: '#0f766e' }} />Battery (LFP)</span>
             <span className="legend-item"><span className="swatch" style={{ background: '#0369a1' }} />Pumped Hydro</span>
             <span className="legend-item"><span className="swatch" style={{ background: '#a8a29e' }} />Natural Gas</span>
-            <span className="legend-item"><span className="swatch" style={{ background: '#fef3c7', border: '1px solid #b45309' }} />Curtailed</span>
+            <span className="legend-item"><span className="swatch" style={{ background: '#fef3c7', border: '1px solid #b45309' }} />Wasted (curtailed)</span>
             <span className="legend-item"><span className="swatch-line" style={{ background: '#111111' }} />Demand</span>
-            <span className="legend-item"><span className="swatch-line" style={{ borderTop: '2px dashed #b45309' }} />Duck Curve (Net Load)</span>
+            <span className="legend-item"><span className="swatch-line" style={{ borderTop: '2px dashed #b45309' }} />Duck curve (demand minus solar and wind)</span>
           </div>
         </div>
       </div>
 
       {/* Collapsible First-Principles Theory Drawer */}
       <details className="theory-drawer">
-        <summary>Engineering Notes: Firm Power LCOE, Duck Curve, Storage RTE & Grid Inertia</summary>
+        <summary>The maths behind it: real cost of 24/7 power, storage losses and grid steadiness</summary>
         <div className="theory-body">
           <div>
-            <h4>Why True Firm Power LCOE Exceeds Headline LCOE</h4>
+            <h4>Why round-the-clock power costs more than the plant price (firm vs headline LCOE)</h4>
             <p>
               Headline solar ($36/MWh) and wind ($42/MWh) LCOE assume every generated MWh is consumed.
               When midday solar overshoots demand, curtailed MWh still carry full capital cost, and
@@ -668,11 +683,11 @@ export const GridDispatchLab: React.FC<Props> = ({ inputs, onChange, summary }) 
             </p>
           </div>
           <div>
-            <h4>Synchronous Inertia, RoCoF & The Hydrogen Storage Trap</h4>
+            <h4>Spinning inertia, how fast frequency falls (RoCoF) and why hydrogen storage loses so much</h4>
             <p>
               On a 50 Hz AC grid (normal band 49.90–50.05 Hz; UFLS trips 49.4–48.8 Hz), spinning
               thermal/nuclear/hydro turbines provide mechanical inertia (H = 3–5 s), while inverter-based
-              solar and wind provide H = 0 s without grid-forming controls:
+              solar and wind provide H = 0 s without grid-forming controls. UFLS (under-frequency load shedding) is the automatic cut of some customers to save the rest:
             </p>
             <div className="eq-block">
               RoCoF = df/dt = [f0 * (P_gen - P_load)] / (2 * H_sys * S_n)

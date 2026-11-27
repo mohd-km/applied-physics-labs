@@ -30,18 +30,20 @@ export const NeurotechBrief: React.FC<NeurotechBriefProps> = ({
 
   const marketViabilityNote =
     impedanceKohm <= 30
-      ? 'Wet-gel regime: strong AUC, but 15-min gel prep kills daily consumer retention.'
+      ? 'Gel-level contact: accurate, but 15 minutes of gel prep means people stop using it daily.'
       : impedanceKohm <= 100
-        ? 'Consumer headband sweet spot: viable for coarse focus-drift cues and sleep staging.'
-        : 'High-impedance dry regime: EMG and thermal noise inflate false alarms, driving Day-14 churn.';
+        ? 'Consumer headband sweet spot: good enough for rough focus-drift nudges and sleep tracking.'
+        : 'Poor dry contact: muscle and electrical noise cause false alarms, so users quit within two weeks.';
 
   return (
     <section id="mmi-brief" className="panel brief-panel">
       <div className="panel-header">
         <div>
-          <h2 className="panel-title">Neurotech &amp; MMI Economics</h2>
+          <h2 className="panel-title">Brain headset economics</h2>
           <p className="panel-subtitle">
-            How skull-attenuation physics and electrode impedance dictate consumer BCI retention.
+            Why a cheap headband struggles: the skull muffles brain signals, and poor sensor
+            contact adds noise, so false alerts drive users away. (MMI: mind-machine interface;
+            BCI: brain-computer interface.)
           </p>
         </div>
       </div>
@@ -49,15 +51,15 @@ export const NeurotechBrief: React.FC<NeurotechBriefProps> = ({
       {/* Live Physics-to-Economics Callout + Interactive Impedance Slider */}
       <div className="callout-strip">
         <div className="callout-metric">
-          <span className="kpi-label">Contact Regime</span>
+          <span className="kpi-label">Sensor contact (impedance)</span>
           <span className="mono-strong">{impedanceKohm} kOhm</span>
         </div>
         <div className="callout-metric">
-          <span className="kpi-label">Scalp SNR</span>
+          <span className="kpi-label">Signal vs noise (SNR)</span>
           <span className="mono-strong">{estimatedSnrDb.toFixed(1)} dB</span>
         </div>
         <div className="callout-metric">
-          <span className="kpi-label">AUC Gap vs Gel</span>
+          <span className="kpi-label">Accuracy gap vs gel cap (AUC)</span>
           <span className="mono-strong">-{aucGap} pts</span>
         </div>
         <div className="callout-copy">
@@ -68,7 +70,7 @@ export const NeurotechBrief: React.FC<NeurotechBriefProps> = ({
 
       <div className="impedance-inline-bar">
         <div className="slider-meta">
-          <span className="slider-name">Stress-test electrode impedance</span>
+          <span className="slider-name">Stress-test sensor contact (impedance)</span>
           <span className="mono-strong">{impedanceKohm} kOhm</span>
         </div>
         <input
@@ -86,8 +88,8 @@ export const NeurotechBrief: React.FC<NeurotechBriefProps> = ({
       {/* Visual Bitrate vs Friction Comparison */}
       <div className="sub-section">
         <div className="sub-section-head">
-          <h3 className="sub-title">Effective BCI Bitrate by Modality</h3>
-          <span className="muted-sm">Log-scale channel capacity vs hardware BOM</span>
+          <h3 className="sub-title">How much information each headset type can carry</h3>
+          <span className="muted-sm">Bitrate in bits per second (b/s), log scale, vs parts cost (BOM)</span>
         </div>
         <div className="modality-bars">
           {MODALITY_VISUALS.map((m) => (
@@ -114,10 +116,10 @@ export const NeurotechBrief: React.FC<NeurotechBriefProps> = ({
       {/* Three Concise Summary Cards with Collapsible Full Analysis */}
       <div className="brief-grid">
         <article className="brief-card">
-          <h3 className="brief-card-title">1. Skull Attenuation &amp; SNR Wall</h3>
+          <h3 className="brief-card-title">1. The skull muffles the signal</h3>
           <p className="brief-summary">
-            Scalp EEG drops to 10-50 &micro;V while eye blinks (200-500 &micro;V) and jaw EMG
-            dominate; physical SNR bounds capacity, not model depth.
+            At the scalp, brain signals shrink to 10-50 &micro;V while a blink is 200-500 &micro;V
+            and jaw muscles (EMG) are louder still. Noise, not a smarter model, sets the limit.
           </p>
           <details className="editorial-details">
             <summary>Read more</summary>
@@ -140,10 +142,10 @@ export const NeurotechBrief: React.FC<NeurotechBriefProps> = ({
         </article>
 
         <article className="brief-card">
-          <h3 className="brief-card-title">2. Consumer BOM &amp; Retention Trap</h3>
+          <h3 className="brief-card-title">2. Cheap to build, hard to keep users</h3>
           <p className="brief-summary">
-            A 4-ch headband costs $32-$48 BOM ($250-$400 retail); the real failure mode is Day-30
-            churn from dry-electrode false alerts.
+            A 4-sensor headband costs $32-$48 in parts (BOM) and sells for $250-$400. The real
+            risk is people quitting within 30 days because dry sensors cause false alerts.
           </p>
           <details className="editorial-details">
             <summary>Read more</summary>
@@ -166,10 +168,10 @@ export const NeurotechBrief: React.FC<NeurotechBriefProps> = ({
         </article>
 
         <article className="brief-card">
-          <h3 className="brief-card-title">3. Viable Products vs Hype</h3>
+          <h3 className="brief-card-title">3. What really works today</h3>
           <p className="brief-summary">
-            Dry EEG wins on coarse 5-15 s macro-states (sleep, drowsiness, focus drift); fine
-            control requires invasive ECoG or sensor fusion.
+            Dry headsets are good at slow, 5-15 s changes (sleep, drowsiness, focus drift). Fine
+            control needs implanted sensors (ECoG) or extra sensors like eye tracking.
           </p>
           <details className="editorial-details">
             <summary>Read more</summary>
@@ -193,7 +195,7 @@ export const NeurotechBrief: React.FC<NeurotechBriefProps> = ({
 
       {/* Collapsible Full Modality Economics Table */}
       <details className="editorial-details">
-        <summary>Full MMI modality tradeoff table (SNR, bitrate, BOM, commercial wedge)</summary>
+        <summary>Full comparison table: noise, bitrate, parts cost, best use</summary>
         <div className="details-body">
           <div className="table-scroll">
             <table className="data-table">

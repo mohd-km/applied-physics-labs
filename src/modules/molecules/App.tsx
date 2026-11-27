@@ -193,8 +193,15 @@ export const App: React.FC = () => {
       <header className="top-header">
         <div className="container header-inner">
           <div className="brand-block">
-            <h2 className="brand-title">longevity small-molecule triage</h2>
-            <p className="brand-note">{COMPOUNDS.length} known compounds; descriptors, potency and lifespan effects are hand-curated, rounded values from ChEMBL, DrugAge and NIA ITP. Research triage only, not medical advice.</p>
+            <h2 className="brand-title">Shortlisting molecules that may slow ageing</h2>
+            <p className="brand-note">
+              {COMPOUNDS.length} real compounds already studied for ageing. Their size, strength
+              and animal lifespan results are hand-copied, rounded values from three public
+              sources: ChEMBL (a database of measured drug activity), DrugAge (published
+              lifespan studies) and the US National Institute on Aging's Interventions Testing
+              Program (ITP), which retests promising compounds in mice. Research shortlisting
+              only, not medical advice.
+            </p>
           </div>
 
           <nav className="tab-bar" role="tablist" aria-label="Workspace views">
@@ -205,7 +212,7 @@ export const App: React.FC = () => {
               className={`tab-btn ${activeTab === 'ranker' ? 'active' : ''}`}
               onClick={() => setActiveTab('ranker')}
             >
-              Rank &amp; Compare
+              Rank and compare
             </button>
             <button
               type="button"
@@ -214,7 +221,7 @@ export const App: React.FC = () => {
               className={`tab-btn ${activeTab === 'space' ? 'active' : ''}`}
               onClick={() => setActiveTab('space')}
             >
-              Chemical Space
+              Explore the chemistry
             </button>
             <button
               type="button"
@@ -223,7 +230,7 @@ export const App: React.FC = () => {
               className={`tab-btn ${activeTab === 'economics' ? 'active' : ''}`}
               onClick={() => setActiveTab('economics')}
             >
-              R&amp;D Economics
+              Cost of screening
             </button>
           </nav>
         </div>
@@ -233,36 +240,44 @@ export const App: React.FC = () => {
         {/* Compact KPI Strip */}
         <section className="kpi-strip" aria-label="Live cohort metrics">
           <div className="kpi-card">
-            <span className="kpi-label">#1 Ranked Hit</span>
+            <span className="kpi-label">Top pick right now</span>
             <span className="kpi-figure kpi-name">{kpis.topName}</span>
             <span className="kpi-sub mono-num">
-              Score {kpis.topScore > 0 ? kpis.topScore.toFixed(1) : '--'} / 100
+              Score {kpis.topScore > 0 ? kpis.topScore.toFixed(1) : '--'} out of 100
             </span>
           </div>
 
           <div className="kpi-card">
-            <span className="kpi-label">Active Candidates</span>
+            <span className="kpi-label">Molecules left after filters</span>
             <span className="kpi-figure mono-num">
               {filteredCompounds.length}{' '}
               <small className="kpi-denom">/ {COMPOUNDS.length}</small>
             </span>
-            <span className="kpi-sub">{kpis.ro5Pct}% Lipinski Ro5 compliant</span>
+            <span className="kpi-sub">
+              {kpis.ro5Pct}% pass the pill checklist (Lipinski rule of five)
+            </span>
           </div>
 
           <div className="kpi-card">
-            <span className="kpi-label">Median Potency</span>
+            <span className="kpi-label">Typical strength on target</span>
             <span className="kpi-figure mono-num">
               {kpis.medianPotency > 0 ? kpis.medianPotency.toFixed(2) : '--'}
             </span>
-            <span className="kpi-sub">pIC50 / pKi / pEC50</span>
+            <span className="kpi-sub">
+              Middle value of the lab potency score (pIC50 / pKi / pEC50): each +1 means ten
+              times stronger
+            </span>
           </div>
 
           <div className="kpi-card">
-            <span className="kpi-label">Mean DrugAge Delta</span>
+            <span className="kpi-label">Average extra lifespan in animals</span>
             <span className="kpi-figure mono-num accent-ink">
               {kpis.meanDelta > 0 ? `+${kpis.meanDelta.toFixed(1)}%` : '--'}
             </span>
-            <span className="kpi-sub">Published model benchmarks</span>
+            <span className="kpi-sub">
+              Median lifespan gain reported in published animal studies, across the molecules
+              shown
+            </span>
           </div>
         </section>
 

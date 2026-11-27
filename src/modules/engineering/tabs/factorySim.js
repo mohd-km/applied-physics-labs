@@ -34,8 +34,9 @@ export function initFactorySim(container) {
   container.innerHTML = `
     <div class="section-head">
       <div>
-        <h2>5-step algorithm on an 8-station line</h2>
-        <p class="section-lead">Apply the five steps in order — or click Automate early to trigger the Model 3 "alien dreadnought" jam.</p>
+        <h2>Five steps to a faster factory line</h2>
+        <p class="section-lead">An 8-station car assembly line. Apply the five steps in order, or click Step 5 (Automate) first to see robots jam on steps that should never have existed, as happened on Tesla's Model 3 line.</p>
+        <p class="plain-hint">Output per hour (throughput) is set by the slowest station (the bottleneck): the whole line can only move as fast as that one step.</p>
       </div>
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
         <button type="button" class="btn btn-sm" id="fs-reset">Reset Line</button>
@@ -61,13 +62,13 @@ export function initFactorySim(container) {
     </div>
 
     <details class="theory-drawer">
-      <summary>The 5-Step Manufacturing Algorithm (Walter Isaacson's Elon Musk)</summary>
+      <summary>The five steps, explained</summary>
       <div class="drawer-body">
-        <p><strong>1. Question every requirement.</strong> Requirements must come from a named person, not a department — even smart people leave stale specs behind.</p>
+        <p><strong>1. Question every requirement.</strong> Requirements must come from a named person, not a department. Even smart people leave stale specs behind.</p>
         <p><strong>2. Delete any part or process you can.</strong> If you do not end up adding at least 10% back in, you did not delete enough. Try deleting an essential station above to see the line break and restore it.</p>
         <p><strong>3. Simplify and optimize.</strong> Never optimize a thing that should not exist.</p>
         <p><strong>4. Accelerate cycle time.</strong> Go faster only after deleting and simplifying.</p>
-        <p><strong>5. Automate — last.</strong> During the Model 3 ramp, Tesla automated the fiberglass battery mat before realizing the mat was unnecessary, jamming the line and spiking capex.</p>
+        <p><strong>5. Automate, last.</strong> During the Model 3 ramp, Tesla automated the fiberglass battery mat before realizing the mat was unnecessary, jamming the line and pushing up equipment spending (capex).</p>
       </div>
     </details>
   `;
@@ -173,24 +174,24 @@ export function initFactorySim(container) {
 
     kpisEl.innerHTML = `
       <div class="kpi-box ${m.statusTone}">
-        <span class="kpi-label">Throughput</span>
-        <span class="kpi-value">${m.brokenEssentials.length ? '0 u/hr' : `${Math.round(m.throughput)} u/hr`}</span>
+        <span class="kpi-label">Output (throughput)</span>
+        <span class="kpi-value">${m.brokenEssentials.length ? '0 cars/hr' : `${Math.round(m.throughput)} cars/hr`}</span>
         <span class="kpi-sub">${m.brokenEssentials.length ? 'Missing essential step' : `${m.gainRatio.toFixed(1)}x vs baseline`}</span>
       </div>
       <div class="kpi-box ${m.statusTone === 'is-danger' ? 'is-danger' : m.unitCost > 0 && m.unitCost < 20000 ? 'is-success' : ''}">
-        <span class="kpi-label">Unit Cost</span>
+        <span class="kpi-label">Cost per car</span>
         <span class="kpi-value">${m.unitCost > 0 ? `$${Math.round(m.unitCost).toLocaleString('en-US')}` : 'HALTED'}</span>
         <span class="kpi-sub">Baseline: $21,390</span>
       </div>
       <div class="kpi-box ${state.jammed ? 'is-danger' : ''}">
-        <span class="kpi-label">Line Capex</span>
+        <span class="kpi-label">Equipment spend (capex)</span>
         <span class="kpi-value">$${m.capex.toFixed(1)}M</span>
         <span class="kpi-sub">${m.activeStations.length} active stations</span>
       </div>
       <div class="kpi-box ${m.statusTone}">
-        <span class="kpi-label">Line Status</span>
+        <span class="kpi-label">Line status</span>
         <span class="kpi-value">${m.statusLabel}</span>
-        <span class="kpi-sub">${m.bottleneck && !m.brokenEssentials.length ? `Bottleneck: ${m.bottleneck.name}` : 'Restore broken station'}</span>
+        <span class="kpi-sub">${m.bottleneck && !m.brokenEssentials.length ? `Slowest step (bottleneck): ${m.bottleneck.name}` : 'Restore broken station'}</span>
       </div>
     `;
 
@@ -213,7 +214,7 @@ export function initFactorySim(container) {
       <button type="button" class="step-btn ${state.accelerated ? 'is-done' : ''}" data-step="accelerate">
         <span class="step-num">STEP 04</span>
         <span class="step-name">Accelerate Cycle</span>
-        <span class="step-meta">${state.accelerated ? 'Line speed +32%' : 'Push takt speed'}</span>
+        <span class="step-meta">${state.accelerated ? 'Line speed +32%' : 'Speed up each step'}</span>
       </button>
       <button type="button" class="step-btn ${state.jammed ? 'is-jam' : state.automated ? 'is-done' : ''}" data-step="automate">
         <span class="step-num">STEP 05</span>
@@ -246,9 +247,9 @@ export function initFactorySim(container) {
             <span class="station-chip-name">${s.id + 1}. ${s.name}</span>
             <span class="station-chip-time">${
               isBroken
-                ? 'BROKEN — tap to restore'
+                ? 'BROKEN: tap to restore'
                 : s.deleted
-                  ? 'DELETED — tap to add back'
+                  ? 'DELETED: tap to add back'
                   : `${sec.toFixed(0)}s${isBloatVisible ? ' (bloat)' : ''}`
             }</span>
           </button>
@@ -266,22 +267,22 @@ export function initFactorySim(container) {
       const names = m.brokenEssentials.map((s) => s.name).join(', ');
       diagHtml = `
         <div class="diagnosis-box is-danger">
-          <p class="diagnosis-tag">Line Broken — Add 10% Back</p>
-          <p class="diagnosis-text">You deleted an essential physics step (${names}). Tap the red chip above to add it back — now you know the true minimum line.</p>
+          <p class="diagnosis-tag">Line broken: add 10% back</p>
+          <p class="diagnosis-text">You deleted a step the car really needs (${names}). Tap the red chip above to add it back. Now you know the true minimum line.</p>
         </div>
       `;
     } else if (state.jammed) {
       diagHtml = `
         <div class="diagnosis-box is-danger">
-          <p class="diagnosis-tag">Alien Dreadnought Jam</p>
-          <p class="diagnosis-text">You automated ${m.activeBloat.length} bloated stations (like the fiberglass mat). Robots are jamming, capex spiked +$52M, and unit cost rose. Delete the bloated stations to clear the jam.</p>
+          <p class="diagnosis-tag">Robot jam (automated too early)</p>
+          <p class="diagnosis-text">You automated ${m.activeBloat.length} unneeded stations (like the fibreglass mat). Robots are jamming, equipment spend jumped $52M, and cost per car rose. Delete the bloated stations to clear the jam.</p>
         </div>
       `;
     } else if (state.automated && m.deletedBloatCount >= 3 && m.gainRatio >= 2.8) {
       diagHtml = `
         <div class="diagnosis-box is-success">
           <p class="diagnosis-tag">First-Principles Flow Achieved (${m.gainRatio.toFixed(1)}x Throughput)</p>
-          <p class="diagnosis-text">Deleting unnecessary stations before automating cleared every queue, boosted output to ${Math.round(m.throughput)} u/hr, and cut unit cost to $${Math.round(m.unitCost).toLocaleString('en-US')}.</p>
+          <p class="diagnosis-text">Deleting unnecessary stations before automating cleared every queue, boosted output to ${Math.round(m.throughput)} cars/hr, and cut cost per car to $${Math.round(m.unitCost).toLocaleString('en-US')}.</p>
         </div>
       `;
     } else {
@@ -290,7 +291,7 @@ export function initFactorySim(container) {
           <p class="diagnosis-tag">Factory Floor Status</p>
           <p class="diagnosis-text">${
             !state.questioned
-              ? 'Start with Step 1 to expose bloated legacy stations, or click Step 5 (Automate) early to see what went wrong at Fremont.'
+              ? 'Start with Step 1 to expose bloated legacy stations, or click Step 5 (Automate) early to see what went wrong at Tesla\'s Fremont factory.'
               : m.activeBloat.length > 1
                 ? `${m.activeBloat.length} bloated stations remain (highlighted amber). Delete at least 3 before automating.`
                 : 'Bloat cleared. Now Simplify, Accelerate, and Automate the remaining essential stations.'
@@ -428,12 +429,12 @@ export function initFactorySim(container) {
     const jamOverlay = state.jammed
       ? `<rect x="24" y="156" width="872" height="44" rx="4" fill="#fef2f2" stroke="#fecaca" />
          <text x="460" y="183" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" font-weight="600" fill="#b91c1c">
-           CONVEYOR JAMMED — ROBOTS STALLED ON BLOATED STATIONS (DELETE BLOAT TO CLEAR)
+           CONVEYOR JAMMED: ROBOTS STALLED ON UNNEEDED STATIONS (DELETE THEM TO CLEAR)
          </text>`
       : m.brokenEssentials.length
         ? `<rect x="24" y="156" width="872" height="44" rx="4" fill="#fef2f2" stroke="#fecaca" />
            <text x="460" y="183" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" font-weight="600" fill="#b91c1c">
-             LINE HALTED — ESSENTIAL STATION DELETED (ADD 10% BACK TO RESUME)
+             LINE HALTED: ESSENTIAL STATION DELETED (ADD 10% BACK TO RESUME)
            </text>`
         : `<text x="24" y="182" font-family="JetBrains Mono, monospace" font-size="12" fill="#555555">
              FLOW: ${Math.round(m.throughput)} UNITS/HR  |  ACTIVE STATIONS: ${m.activeStations.length}/8  |  ${state.automated ? 'AUTOMATED' : 'MANUAL LINE'}

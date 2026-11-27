@@ -36,10 +36,15 @@ export const WaveformChart: React.FC<WaveformChartProps> = ({
     <div className="panel">
       <div className="panel-header">
         <div>
-          <h2 className="panel-title">4-Channel Live EEG Oscilloscope</h2>
+          <h2 className="panel-title">Live brainwaves from 4 sensors</h2>
           <p className="panel-subtitle">
-            {snapshot.sampleRateHz} Hz &middot; {snapshot.windowSec.toFixed(1)} s sliding epoch
-            &middot; &plusmn;{uvScale} &micro;V/div
+            {snapshot.sampleRateHz} readings per second (sampling rate) &middot; last{' '}
+            {snapshot.windowSec.toFixed(1)} s &middot; each row spans &plusmn;{uvScale} &micro;V
+            (microvolts, millionths of a volt)
+          </p>
+          <p className="eeg-hint">
+            AF7 and AF8 sit on the forehead, TP9 and TP10 behind the ears. The number under each
+            name is the average wave size.
           </p>
         </div>
 
@@ -50,7 +55,7 @@ export const WaveformChart: React.FC<WaveformChartProps> = ({
             onClick={onTriggerBlink}
             title="Inject a single 115 uV frontal eye-blink pulse on AF7/AF8"
           >
-            Trigger Blink Pulse
+            Add a blink
           </button>
           <button type="button" className="chip-btn" onClick={onCycleScale}>
             &plusmn;{uvScale} &micro;V

@@ -167,9 +167,11 @@ export const App: React.FC = () => {
       <header className="top-bar">
         <div className="top-bar-inner">
           <div className="brand-block">
-            <h2 className="app-title">4-channel EEG focus decoder</h2>
+            <h2 className="app-title">4-sensor brainwave focus decoder (EEG)</h2>
             <p className="app-byline">
-              Signals are synthetic until you upload a CSV; files are parsed in your browser and never leave it.
+              EEG (electroencephalography) is the tiny electrical buzz of your brain, picked up by sensors on the head.
+              The waves here are simulated until you upload your own spreadsheet of readings (CSV); it is read in your
+              browser and never leaves it.
             </p>
           </div>
 
@@ -181,7 +183,7 @@ export const App: React.FC = () => {
               className={`tab-btn ${activeTab === 'lab' ? 'tab-btn-active' : ''}`}
               onClick={() => setActiveTab('lab')}
             >
-              FFT &amp; Filter Lab
+              Rhythms &amp; filters (FFT)
             </button>
             <button
               type="button"
@@ -190,7 +192,7 @@ export const App: React.FC = () => {
               className={`tab-btn ${activeTab === 'roc' ? 'tab-btn-active' : ''}`}
               onClick={() => setActiveTab('roc')}
             >
-              ROC &amp; Matrix
+              How accurate? (ROC)
             </button>
             <button
               type="button"
@@ -199,7 +201,7 @@ export const App: React.FC = () => {
               className={`tab-btn ${activeTab === 'mmi' ? 'tab-btn-active' : ''}`}
               onClick={() => setActiveTab('mmi')}
             >
-              MMI Economics
+              Headset economics
             </button>
           </nav>
         </div>
@@ -212,7 +214,7 @@ export const App: React.FC = () => {
             <section className="control-strip" aria-label="Signal source, noise injection, and digital filters">
               <div className="toolbar-row">
                 <div className="toolbar-group">
-                  <span className="strip-label">Cognitive State</span>
+                  <span className="strip-label">Mental state to simulate</span>
                   <div className="preset-buttons">
                     {PRESET_ORDER.map((id) => {
                       const preset = COGNITIVE_PRESETS[id];
@@ -233,7 +235,7 @@ export const App: React.FC = () => {
                 </div>
 
                 <div className="toolbar-group">
-                  <span className="strip-label">Noise Injection &amp; Digital Filters</span>
+                  <span className="strip-label">Add real-world noise, then clean it (filters)</span>
                   <div className="dsp-toggles">
                     <button
                       type="button"
@@ -241,7 +243,7 @@ export const App: React.FC = () => {
                       onClick={() => setInjectEyeBlink((v) => !v)}
                       aria-pressed={injectEyeBlink}
                     >
-                      Eye-Blink/EMG: {injectEyeBlink ? 'On' : 'Off'}
+                      Blinks &amp; muscle noise (EMG): {injectEyeBlink ? 'On' : 'Off'}
                     </button>
 
                     <button
@@ -250,7 +252,7 @@ export const App: React.FC = () => {
                       onClick={() => setInjectMainsHum((v) => !v)}
                       aria-pressed={injectMainsHum}
                     >
-                      50 Hz Hum: {injectMainsHum ? 'On' : 'Off'}
+                      Mains hum, 50 Hz: {injectMainsHum ? 'On' : 'Off'}
                     </button>
 
                     <button
@@ -259,7 +261,7 @@ export const App: React.FC = () => {
                       onClick={() => setNotchFilter50Hz((v) => !v)}
                       aria-pressed={notchFilter50Hz}
                     >
-                      50 Hz Notch: {notchFilter50Hz ? 'On' : 'Off'}
+                      Hum remover (50 Hz notch): {notchFilter50Hz ? 'On' : 'Off'}
                     </button>
 
                     <button
@@ -268,9 +270,13 @@ export const App: React.FC = () => {
                       onClick={() => setBandpassFilter((v) => !v)}
                       aria-pressed={bandpassFilter}
                     >
-                      1.5-40 Hz BP: {bandpassFilter ? 'On' : 'Off'}
+                      Keep only 1.5-40 Hz (bandpass): {bandpassFilter ? 'On' : 'Off'}
                     </button>
                   </div>
+                  <p className="eeg-hint">
+                    Orange buttons add noise a real headset picks up. Blue buttons are filters (simple
+                    maths that strips out a range of frequencies) that clean it back up.
+                  </p>
                 </div>
               </div>
 
@@ -297,12 +303,12 @@ export const App: React.FC = () => {
                     className="chip-btn"
                     onClick={() => fileInputRef.current?.click()}
                   >
-                    Upload EEG CSV
+                    Upload your EEG (CSV file)
                   </button>
 
                   {!csvDataset ? (
                     <button type="button" className="chip-btn" onClick={handleLoadSampleCsv}>
-                      Load Sample CSV
+                      Try a sample file
                     </button>
                   ) : (
                     <button
@@ -310,7 +316,7 @@ export const App: React.FC = () => {
                       className="chip-btn chip-btn-accent"
                       onClick={() => setCsvDataset(null)}
                     >
-                      Back to Live Synth
+                      Back to simulated waves
                     </button>
                   )}
                 </div>
@@ -318,7 +324,7 @@ export const App: React.FC = () => {
                 <div className="csv-status">
                   {csvDataset ? (
                     <span className="mono-sm">
-                      CSV: {csvDataset.fileName} ({csvDataset.sampleCount} samples &middot; {csvDataset.sampleRateHz} Hz &middot;{' '}
+                      CSV: {csvDataset.fileName} ({csvDataset.sampleCount} readings &middot; {csvDataset.sampleRateHz} per second &middot;{' '}
                       {csvDataset.detectedColumns.join(', ')})
                     </span>
                   ) : (

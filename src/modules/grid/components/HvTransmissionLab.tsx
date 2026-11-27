@@ -149,10 +149,14 @@ export const HvTransmissionLab: React.FC<Props> = ({
     <section className="lab-section" id="hv-transmission">
       <div className="section-header">
         <div>
-          <h2>HVAC vs HVDC: I²R loss over distance</h2>
+          <h2>Sending power far away: AC vs DC power lines (HVAC vs HVDC)</h2>
           <p className="section-desc">
-            Compare 110 kV to 765 kV HVAC against ±500 / ±800 kV HVDC across distance, power factor,
-            and overhead vs subsea capacitive limits.
+            Wires heat up and waste power as they carry it. Compare normal high-voltage AC lines (110 kV to 765 kV)
+            with high-voltage DC lines (±500 / ±800 kV) over different distances, on land or under the sea.
+          </p>
+          <p className="plain-hint">
+            I²R loss: heat lost in the wire, equal to current squared times resistance. Double the voltage, halve the
+            current, and the heat loss drops to a quarter.
           </p>
         </div>
         <div className="action-row">
@@ -172,7 +176,7 @@ export const HvTransmissionLab: React.FC<Props> = ({
       {/* KPI Strip */}
       <div className="kpi-grid">
         <div className="kpi-card">
-          <p className="kpi-label">Selected Class Loss</p>
+          <p className="kpi-label">Power lost on the chosen line</p>
           <p className={`kpi-value ${focus.feasible ? 'accent' : 'danger'}`}>
             {focus.totalLossPct.toFixed(2)}%
           </p>
@@ -182,25 +186,27 @@ export const HvTransmissionLab: React.FC<Props> = ({
         </div>
 
         <div className="kpi-card">
-          <p className="kpi-label">Line Current ({focus.spec.shortLabel})</p>
+          <p className="kpi-label">Current in the wires ({focus.spec.shortLabel})</p>
           <p className="kpi-value">{Math.round(focus.totalCurrentA).toLocaleString()} A</p>
           <p className="kpi-meta">
-            {focus.circuitsNeeded} circuit{focus.circuitsNeeded > 1 ? 's' : ''} ({Math.round(focus.currentPerCircuitA).toLocaleString()} A/ckt)
+            {focus.circuitsNeeded} parallel line{focus.circuitsNeeded > 1 ? 's' : ''} needed ({Math.round(focus.currentPerCircuitA).toLocaleString()} A each)
           </p>
+          <p className="plain-hint">More current needs thicker or more wires and wastes more as heat.</p>
         </div>
 
         <div className="kpi-card">
-          <p className="kpi-label">HVDC Break-Even Distance</p>
+          <p className="kpi-label">Distance where DC starts to win (break-even)</p>
           <p className="kpi-value">~{breakEvenKm} km</p>
           <p className="kpi-meta">
             {inputs.corridor === 'overhead'
-              ? 'Overhead LCC benchmark: 600–800 km'
-              : 'Subsea VSC benchmark: >50 km'}
+              ? 'Typical for overhead DC lines: 600–800 km'
+              : 'Typical for undersea DC cables: over 50 km'}
           </p>
+          <p className="plain-hint">DC needs costly converter stations at each end (they turn AC into DC and back), so it only pays off over long distances.</p>
         </div>
 
         <div className="kpi-card">
-          <p className="kpi-label">Corridor Verdict</p>
+          <p className="kpi-label">Verdict for this route</p>
           <p
             className={`kpi-value ${
               !focus.feasible ? 'danger' : focus.totalLossPct <= 6 ? 'ok' : 'accent'
@@ -211,7 +217,7 @@ export const HvTransmissionLab: React.FC<Props> = ({
           </p>
           <p className="kpi-meta">
             {inputs.corridor === 'subsea' && focus.spec.mode === 'HVAC'
-              ? `Charging I_c: ${Math.round(focus.chargingCurrentA)} A`
+              ? `Current wasted just charging the cable (I_c): ${Math.round(focus.chargingCurrentA)} A`
               : `${focus.spec.conductor}`}
           </p>
         </div>
@@ -220,14 +226,14 @@ export const HvTransmissionLab: React.FC<Props> = ({
       <div className="lab-grid">
         {/* Left Controls */}
         <div className="card">
-          <h3 className="card-title">Corridor Parameters</h3>
+          <h3 className="card-title">Your power line</h3>
           <p className="card-subtitle">
-            Stepping voltage up 10× cuts current 10× and I²R ohmic loss by 100× (99%).
+            Raising voltage 10× cuts current 10× and the heat lost in the wire (I²R loss) 100×, a 99% saving.
           </p>
 
           <div className="control-group">
             <span className="control-label" style={{ display: 'block', marginBottom: 6 }}>
-              Corridor Medium
+              Where the line runs
             </span>
             <div className="segmented" role="group" aria-label="Corridor type">
               <button
@@ -242,14 +248,14 @@ export const HvTransmissionLab: React.FC<Props> = ({
                 className={`seg-btn ${inputs.corridor === 'subsea' ? 'active' : ''}`}
                 onClick={() => handleCorridorChange('subsea')}
               >
-                Subsea / Cable
+                Undersea / buried cable
               </button>
             </div>
           </div>
 
           <div className="control-group">
             <div className="control-head">
-              <label className="control-label" htmlFor="power-slider">Transmitted Power (P)</label>
+              <label className="control-label" htmlFor="power-slider">Power to send (P)</label>
               <span className="control-val">{inputs.powerMW.toLocaleString()} MW</span>
             </div>
             <div className="slider-wrap">
@@ -279,7 +285,7 @@ export const HvTransmissionLab: React.FC<Props> = ({
 
           <div className="control-group">
             <div className="control-head">
-              <label className="control-label" htmlFor="distance-slider">Corridor Length (L)</label>
+              <label className="control-label" htmlFor="distance-slider">Line length (L)</label>
               <span className="control-val">{inputs.distanceKm.toLocaleString()} km</span>
             </div>
             <div className="slider-wrap">
@@ -309,9 +315,10 @@ export const HvTransmissionLab: React.FC<Props> = ({
 
           <div className="control-group">
             <div className="control-head">
-              <label className="control-label" htmlFor="pf-slider">AC Power Factor (cos θ)</label>
+              <label className="control-label" htmlFor="pf-slider">AC power factor (cos θ)</label>
               <span className="control-val">{inputs.powerFactor.toFixed(2)}</span>
             </div>
+            <p className="plain-hint">How much of the AC current does useful work. 1.0 is perfect; lower means extra current and extra loss.</p>
             <div className="slider-wrap">
               <input
                 id="pf-slider"
@@ -339,7 +346,7 @@ export const HvTransmissionLab: React.FC<Props> = ({
 
           <div className="control-group">
             <label className="control-label" htmlFor="voltage-select">
-              Inspect Voltage Class
+              Line type to inspect (voltage class)
             </label>
             <select
               id="voltage-select"
@@ -363,9 +370,10 @@ export const HvTransmissionLab: React.FC<Props> = ({
           <div className="chart-box">
             <div className="chart-header">
               <div>
-                <h3 className="card-title">Total Power Loss (%) vs. Distance (0–{maxDistAxis} km)</h3>
+                <h3 className="card-title">Share of power lost (%) as the line gets longer (0–{maxDistAxis} km)</h3>
                 <p className="card-subtitle" style={{ marginBottom: 0 }}>
-                  Includes ohmic I²R loss, AC skin effect (~8%), and substation/converter station losses.
+                  Counts wire heating (I²R), the extra AC resistance from skin effect (AC current crowds to the wire's
+                  surface, ~8%), and losses in substations and converter stations.
                 </p>
               </div>
               <span className="mono" style={{ fontSize: 12, color: 'var(--accent)' }}>
@@ -527,9 +535,9 @@ export const HvTransmissionLab: React.FC<Props> = ({
 
           {/* Current & 1/V^2 Hardware Sizing Bar Strip */}
           <div className="card card-white">
-            <h3 className="card-title">Current Scaling: Why Generators Step Up From 24 kV to 400–800 kV</h3>
+            <h3 className="card-title">Why power stations boost voltage from 24 kV to 400–800 kV</h3>
             <p className="card-subtitle">
-              Current (not power) sizes copper and aluminum hardware. Log-scaled line current at{' '}
+              Current, not power, decides how much metal the wires need. Current at each voltage (log scale, each step is 10×) at{' '}
               {inputs.powerMW.toLocaleString()} MW (pf {inputs.powerFactor.toFixed(2)}).
             </p>
             <div>
@@ -563,11 +571,11 @@ export const HvTransmissionLab: React.FC<Props> = ({
           <table className="data-table">
             <thead>
               <tr>
-                <th>Transmission Class</th>
+                <th>Line type</th>
                 <th>Conductor / Cable</th>
-                <th className="num">Circuits</th>
+                <th className="num">Lines needed</th>
                 <th className="num">Total Current</th>
-                <th className="num">Ohmic + Station Loss</th>
+                <th className="num">Lost (wire heat + stations)</th>
                 <th className="num">Delivered</th>
                 <th>Verdict</th>
               </tr>
@@ -612,10 +620,10 @@ export const HvTransmissionLab: React.FC<Props> = ({
 
       {/* Collapsible First-Principles Theory Drawer */}
       <details className="theory-drawer">
-        <summary>Engineering Notes: Joule's Law, Capacitive Charging Current & Skin Effect</summary>
+        <summary>The maths behind it: why higher voltage loses less, and why long undersea AC cables fail</summary>
         <div className="theory-body">
           <div>
-            <h4>Joule's Law & The 1/V² Scaling Law</h4>
+            <h4>Wire heating (Joule's law): loss falls with voltage squared (1/V²)</h4>
             <p>
               Three-phase AC transmission losses scale inversely with the square of line-to-line
               voltage and power factor:
@@ -633,15 +641,16 @@ export const HvTransmissionLab: React.FC<Props> = ({
             <h4>Why HVDC Wins Beyond 600–800 km Overhead or 50 km Subsea</h4>
             <p>
               AC lines suffer from skin effect (increasing R_AC by 5–15% over R_DC) and continuous
-              ground capacitance. In subsea/underground AC cables, charging current saturates thermal
-              ampacity within ~50–80 km:
+              ground capacitance (the cable acts like a giant capacitor that must be refilled 50 times a second). In
+              subsea/underground AC cables, this charging current uses up the cable's safe current limit (ampacity)
+              within ~50–80 km:
             </p>
             <div className="eq-block">
               I_c = 2 * π * f * C * V_ph * L   (HVDC: f = 0 Hz =&gt; I_c = 0 A)
             </div>
             <p>
-              HVDC LCC (±500 to ±800 kV) delivers 3,000–6,000 MW at 2.5%–3.5% loss per 1,000 km;
-              HVDC VSC (±320 to ±525 kV) enables subsea XLPE links at 3.0%–3.5% per 1,000 km.
+              HVDC LCC (classic thyristor converters, ±500 to ±800 kV) delivers 3,000–6,000 MW at 2.5%–3.5% loss per 1,000 km;
+              HVDC VSC (newer transistor converters, ±320 to ±525 kV) enables subsea plastic-insulated (XLPE) links at 3.0%–3.5% per 1,000 km.
             </p>
           </div>
         </div>

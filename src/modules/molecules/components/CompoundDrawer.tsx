@@ -59,30 +59,30 @@ export const CompoundDrawer: React.FC<CompoundDrawerProps> = ({
 
   const ro5Rows = [
     {
-      label: 'Molecular Weight',
+      label: 'Weight of one molecule (daltons)',
       value: `${compound.mw.toFixed(1)} Da`,
-      limit: `<= ${RO5_LIMITS.mw}`,
+      limit: `limit ${RO5_LIMITS.mw}`,
       pct: Math.min(100, (compound.mw / 1000) * 100),
       pass: ro5.mwPass,
     },
     {
-      label: 'cLogP',
+      label: 'Greasiness (logP)',
       value: compound.logP.toFixed(2),
-      limit: `<= ${RO5_LIMITS.logP.toFixed(1)}`,
+      limit: `limit ${RO5_LIMITS.logP.toFixed(1)}`,
       pct: Math.min(100, Math.max(5, ((compound.logP + 7) / 15) * 100)),
       pass: ro5.logPPass,
     },
     {
-      label: 'H-Bond Donors',
+      label: 'Sticky hydrogens it gives away (H-bond donors)',
       value: `${compound.hbd}`,
-      limit: `<= ${RO5_LIMITS.hbd}`,
+      limit: `limit ${RO5_LIMITS.hbd}`,
       pct: Math.min(100, (compound.hbd / 15) * 100),
       pass: ro5.hbdPass,
     },
     {
-      label: 'H-Bond Acceptors',
+      label: 'Spots that grab hydrogens (H-bond acceptors)',
       value: `${compound.hba}`,
-      limit: `<= ${RO5_LIMITS.hba}`,
+      limit: `limit ${RO5_LIMITS.hba}`,
       pct: Math.min(100, (compound.hba / 20) * 100),
       pass: ro5.hbaPass,
     },
@@ -131,7 +131,7 @@ export const CompoundDrawer: React.FC<CompoundDrawerProps> = ({
             type="button"
             className="drawer-close"
             onClick={onClose}
-            aria-label="Close compound details"
+            aria-label="Close this molecule's profile"
           >
             <svg
               width="20"
@@ -172,25 +172,25 @@ export const CompoundDrawer: React.FC<CompoundDrawerProps> = ({
           {/* Core metrics grid */}
           <div className="drawer-kpi-grid">
             <div className="drawer-kpi">
-              <span className="kpi-label">Composite Score</span>
+              <span className="kpi-label">Overall score /100</span>
               <span className="kpi-value mono-num accent-ink">
                 {scores ? scores.composite.toFixed(1) : '--'}
               </span>
             </div>
             <div className="drawer-kpi">
-              <span className="kpi-label">Binding Potency</span>
+              <span className="kpi-label">Strength on target (+1 is 10x)</span>
               <span className="kpi-value mono-num">
                 {compound.potency.toFixed(1)} <small>{compound.affinityMetric}</small>
               </span>
             </div>
             <div className="drawer-kpi">
-              <span className="kpi-label">DrugAge Delta</span>
+              <span className="kpi-label">Extra lifespan in animals</span>
               <span className="kpi-value mono-num accent-ink">
                 +{compound.drugAgeDeltaPct}%
               </span>
             </div>
             <div className="drawer-kpi">
-              <span className="kpi-label">QED / BEI</span>
+              <span className="kpi-label">Drug-like /1 and strength per weight</span>
               <span className="kpi-value mono-num">
                 {compound.qed.toFixed(2)} <small>/ {bei}</small>
               </span>
@@ -201,19 +201,19 @@ export const CompoundDrawer: React.FC<CompoundDrawerProps> = ({
           {scores && (
             <div className="drawer-admet-strip">
               <div className="admet-pill">
-                <span>Oral</span>
+                <span>Works as a pill</span>
                 <strong className="mono-num">{scores.oralBioavailability}</strong>
               </div>
               <div className="admet-pill">
-                <span>BBB</span>
+                <span>Reaches the brain</span>
                 <strong className="mono-num">{scores.bbbPermeability}</strong>
               </div>
               <div className="admet-pill">
-                <span>Affinity</span>
+                <span>Hits its target</span>
                 <strong className="mono-num">{scores.pathwayAffinity}</strong>
               </div>
               <div className="admet-pill">
-                <span>Safety</span>
+                <span>Safety and trials</span>
                 <strong className="mono-num">{scores.safety}</strong>
               </div>
             </div>
@@ -222,7 +222,13 @@ export const CompoundDrawer: React.FC<CompoundDrawerProps> = ({
           {/* Lipinski Rule of 5 Scorecard */}
           <div className="drawer-section">
             <div className="section-row">
-              <h3 className="drawer-section-title">Lipinski Rule-of-5</h3>
+              <h3 className="drawer-section-title">
+                Pill checklist (Lipinski rule of five)
+                <small className="field-hint">
+                  Four limits most swallowable drugs respect. Failing one is common, failing two
+                  or more usually means trouble getting it absorbed.
+                </small>
+              </h3>
               <span
                 className={`ro5-pill ${
                   ro5.violations === 0
@@ -233,8 +239,8 @@ export const CompoundDrawer: React.FC<CompoundDrawerProps> = ({
                 }`}
               >
                 {ro5.violations === 0
-                  ? '0 Violations'
-                  : `${ro5.violations} Violation${ro5.violations > 1 ? 's' : ''}`}
+                  ? 'All four passed'
+                  : `${ro5.violations} of 4 failed`}
               </span>
             </div>
 
@@ -259,36 +265,36 @@ export const CompoundDrawer: React.FC<CompoundDrawerProps> = ({
             </div>
 
             <div className="extra-descriptors mono-num">
-              <span>TPSA: {compound.tpsa} A&sup2;</span>
-              <span>Rot. Bonds: {compound.rotatableBonds}</span>
-              <span>CAS: {compound.casNumber}</span>
+              <span>Water-friendly surface (TPSA): {compound.tpsa} A&sup2;</span>
+              <span>Bendable bonds: {compound.rotatableBonds}</span>
+              <span>Chemical registry number (CAS): {compound.casNumber}</span>
             </div>
           </div>
 
           {/* Collapsible Deep Notes & SMILES */}
           <details className="editorial-details" open>
-            <summary>Mechanism &amp; Benchmark Evidence</summary>
+            <summary>What it does in the body, and the study behind the number</summary>
             <div className="details-body">
               <p>
-                <strong>Target:</strong> {compound.primaryTarget} ({compound.modelOrganism} &middot;{' '}
-                {compound.benchmarkSource})
+                <strong>Protein it acts on:</strong> {compound.primaryTarget}. Lifespan result
+                measured in {compound.modelOrganism}, reported by {compound.benchmarkSource}.
               </p>
               <p>{compound.mechanism}</p>
             </div>
           </details>
 
           <details className="editorial-details">
-            <summary>Translational &amp; Safety Notes</summary>
+            <summary>Safety notes and what is still unknown in humans</summary>
             <div className="details-body">
               <p>{compound.safetyNotes}</p>
             </div>
           </details>
 
           <details className="editorial-details">
-            <summary>Canonical SMILES</summary>
+            <summary>Chemical structure as text (SMILES)</summary>
             <div className="details-body">
               <button type="button" className="btn-ghost" onClick={handleCopySmiles}>
-                {copied ? 'Copied SMILES' : 'Copy SMILES'}
+                {copied ? 'Copied' : 'Copy the structure text'}
               </button>
               <code className="smiles-box">{compound.smiles}</code>
             </div>

@@ -272,7 +272,7 @@ export function simulateGridDispatch(inputs: GridInputs): GridSummary {
       }
 
       curtailedGW = Math.max(0, surplusGW);
-      marginalSource = curtailedGW > 0.01 ? 'Curtailed VRE ($0)' : 'Storage Charging';
+      marginalSource = curtailedGW > 0.01 ? 'Spare solar / wind ($0)' : 'Storage Charging';
     } else {
       // Deficit: discharge LFP, then PHS, then Gas, else Unserved
       let deficitGW = demandGW - mustTakeGW;
@@ -301,7 +301,7 @@ export function simulateGridDispatch(inputs: GridInputs): GridSummary {
 
       if (deficitGW > 0.001) {
         unservedGW = deficitGW;
-        marginalSource = 'Unserved Deficit';
+        marginalSource = 'Shortfall (blackout)';
       } else if (lfpDischargeGW <= 0.001 && phsDischargeGW <= 0.001 && gasGW <= 0.001) {
         marginalSource = nuclearGW >= demandGW ? 'Nuclear' : 'Solar / Wind';
       }

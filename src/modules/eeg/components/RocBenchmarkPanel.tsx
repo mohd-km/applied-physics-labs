@@ -45,10 +45,16 @@ export const RocBenchmarkPanel: React.FC<RocBenchmarkPanelProps> = ({
     <div className="panel">
       <div className="panel-header">
         <div>
-          <h2 className="panel-title">ROC Curve &amp; Confusion Matrix Lab</h2>
+          <h2 className="panel-title">How often is the focus detector right? (ROC curve)</h2>
           <p className="panel-subtitle">
-            Sweep the decision threshold (&tau;) and impedance to see false-alarm tradeoffs vs
-            EEGMAT / OpenNeuro benchmarks.
+            Each curve trades catching real focus (up) against false alarms (right). The number in
+            brackets is AUC (area under the curve): 0.5 is a coin flip, 1.0 is perfect. Drag the
+            decision threshold (&tau;) to choose a point on the curve.
+          </p>
+          <p className="eeg-hint">
+            These curves are modelled, not trained on recordings: the grey hospital-cap curve is
+            pinned to published results (EEGMAT, OpenNeuro), and the two live 4-sensor curves get
+            worse as you raise impedance or switch noise on in the first tab.
           </p>
         </div>
         <div className="model-selector" role="group" aria-label="Select ROC model">
@@ -190,7 +196,7 @@ export const RocBenchmarkPanel: React.FC<RocBenchmarkPanelProps> = ({
                 fontSize="12"
                 fontFamily="Inter, sans-serif"
               >
-                False Positive Rate (1 - Specificity)
+                False alarms (false positive rate)
               </text>
               <text
                 x={14}
@@ -201,7 +207,7 @@ export const RocBenchmarkPanel: React.FC<RocBenchmarkPanelProps> = ({
                 fontFamily="Inter, sans-serif"
                 transform={`rotate(-90 14 ${padT + plotH / 2})`}
               >
-                True Positive Rate (Sensitivity)
+                Focus caught (true positive rate)
               </text>
             </svg>
           </div>
@@ -211,7 +217,7 @@ export const RocBenchmarkPanel: React.FC<RocBenchmarkPanelProps> = ({
         <div className="confusion-col">
           <div className="threshold-box">
             <div className="slider-meta">
-              <span className="slider-name">Decision Threshold (&tau;)</span>
+              <span className="slider-name">How sure before it alerts (threshold &tau;)</span>
               <span className="mono-strong">{threshold.toFixed(2)}</span>
             </div>
             <input
@@ -225,7 +231,7 @@ export const RocBenchmarkPanel: React.FC<RocBenchmarkPanelProps> = ({
               aria-label="Classifier decision threshold"
             />
             <div className="slider-meta" style={{ marginTop: 8 }}>
-              <span className="slider-name">Electrode Impedance</span>
+              <span className="slider-name">Sensor-to-skin contact (impedance)</span>
               <span className="mono-strong">{impedanceKohm} kOhm</span>
             </div>
             <input
@@ -241,7 +247,7 @@ export const RocBenchmarkPanel: React.FC<RocBenchmarkPanelProps> = ({
           </div>
 
           <div className="cm-heading-row">
-            <h3 className="sub-title">2x2 Confusion Matrix (200 Epochs)</h3>
+            <h3 className="sub-title">Results on 200 test windows (confusion matrix)</h3>
             <span className="mono-strong" style={{ color: activeSeries.color }}>
               AUC {activeSeries.auc.toFixed(3)}
             </span>
@@ -249,10 +255,10 @@ export const RocBenchmarkPanel: React.FC<RocBenchmarkPanelProps> = ({
 
           <div className="cm-grid" role="table" aria-label="Classifier confusion matrix">
             <div className="cm-corner" />
-            <div className="cm-col-head">Pred: Focused</div>
-            <div className="cm-col-head">Pred: Drift</div>
+            <div className="cm-col-head">Said: focused</div>
+            <div className="cm-col-head">Said: drifting</div>
 
-            <div className="cm-row-head">Actual: Focused</div>
+            <div className="cm-row-head">Really focused</div>
             <div className="cm-cell cm-tp">
               <span className="cm-tag">TP</span>
               <span className="cm-num">{matrix.tp}</span>
@@ -262,7 +268,7 @@ export const RocBenchmarkPanel: React.FC<RocBenchmarkPanelProps> = ({
               <span className="cm-num">{matrix.fn}</span>
             </div>
 
-            <div className="cm-row-head">Actual: Drift</div>
+            <div className="cm-row-head">Really drifting</div>
             <div className="cm-cell cm-fp">
               <span className="cm-tag">FP</span>
               <span className="cm-num">{matrix.fp}</span>
@@ -273,21 +279,26 @@ export const RocBenchmarkPanel: React.FC<RocBenchmarkPanelProps> = ({
             </div>
           </div>
 
+          <p className="eeg-hint">
+            TP: focus correctly caught. FN: focus missed. FP: false alarm. TN: drifting correctly
+            spotted.
+          </p>
+
           <div className="metrics-mini-grid">
             <div className="mini-metric">
-              <span className="kpi-label">Sensitivity</span>
+              <span className="kpi-label">Focus caught (sensitivity)</span>
               <span className="mono-strong">{(matrix.sensitivity * 100).toFixed(1)}%</span>
             </div>
             <div className="mini-metric">
-              <span className="kpi-label">Specificity</span>
+              <span className="kpi-label">Drift spotted (specificity)</span>
               <span className="mono-strong">{(matrix.specificity * 100).toFixed(1)}%</span>
             </div>
             <div className="mini-metric">
-              <span className="kpi-label">F1 Score</span>
+              <span className="kpi-label">Overall balance (F1)</span>
               <span className="mono-strong">{(matrix.f1 * 100).toFixed(1)}%</span>
             </div>
             <div className="mini-metric">
-              <span className="kpi-label">False Alerts / 90m</span>
+              <span className="kpi-label">False alerts per 90 min</span>
               <span
                 className="mono-strong"
                 style={{ color: matrix.falseAlarmsPer90Min > 12 ? '#be123c' : '#047857' }}
@@ -301,7 +312,7 @@ export const RocBenchmarkPanel: React.FC<RocBenchmarkPanelProps> = ({
 
       {/* Collapsible Public EEG Benchmark Reference Table */}
       <details className="editorial-details">
-        <summary>Public mental-workload EEG benchmarks (EEGMAT, OpenNeuro, STEW, SEED-VIG)</summary>
+        <summary>Published brainwave studies this is compared against (EEGMAT, OpenNeuro, STEW, SEED-VIG)</summary>
         <div className="details-body">
           <div className="table-scroll">
             <table className="data-table">
@@ -309,11 +320,11 @@ export const RocBenchmarkPanel: React.FC<RocBenchmarkPanelProps> = ({
                 <tr>
                   <th>Dataset</th>
                   <th>Cohort</th>
-                  <th>Montage</th>
+                  <th>Sensor layout</th>
                   <th>Electrode</th>
                   <th>Task Paradigm</th>
                   <th>Published AUC</th>
-                  <th>Primary SNR Bottleneck</th>
+                  <th>Main source of noise</th>
                 </tr>
               </thead>
               <tbody>

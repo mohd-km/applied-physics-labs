@@ -17,15 +17,15 @@ interface CompoundTableProps {
 }
 
 const COLUMNS: { field: SortField; label: string; numeric?: boolean }[] = [
-  { field: 'composite', label: 'Score', numeric: true },
-  { field: 'name', label: 'Compound' },
-  { field: 'pathway', label: 'Pathway' },
-  { field: 'potency', label: 'Potency', numeric: true },
-  { field: 'qed', label: 'QED', numeric: true },
-  { field: 'mw', label: 'MW (Da)', numeric: true },
-  { field: 'ro5Violations', label: 'Ro5', numeric: true },
-  { field: 'clinicalPhase', label: 'Phase' },
-  { field: 'drugAgeDeltaPct', label: 'DrugAge', numeric: true },
+  { field: 'composite', label: 'Score /100', numeric: true },
+  { field: 'name', label: 'Molecule' },
+  { field: 'pathway', label: 'Acts on' },
+  { field: 'potency', label: 'Strength', numeric: true },
+  { field: 'qed', label: 'Drug-like /1', numeric: true },
+  { field: 'mw', label: 'Weight (daltons)', numeric: true },
+  { field: 'ro5Violations', label: 'Pill checklist', numeric: true },
+  { field: 'clinicalPhase', label: 'Trial stage' },
+  { field: 'drugAgeDeltaPct', label: 'Extra lifespan', numeric: true },
 ];
 
 export const CompoundTable: React.FC<CompoundTableProps> = ({
@@ -41,18 +41,20 @@ export const CompoundTable: React.FC<CompoundTableProps> = ({
   onSetCompareB,
 }) => {
   return (
-    <section className="card table-card" aria-label="Live-Ranked Compound Library">
+    <section className="card table-card" aria-label="Full ranked list of molecules">
       <div className="panel-header">
         <div>
-          <h2 className="panel-title">Live-Ranked Compound Library</h2>
+          <h2 className="panel-title">The full list</h2>
           <p className="panel-subtitle">
-            Re-ranks automatically with your weights. Tap a row for its full profile.
+            Re-sorts as you move the sliders. Tap a column heading to sort by it, or a row for
+            the full profile. Strength: each +1 is ten times stronger. Pill checklist: how many
+            of the four rule-of-five boxes it fails.
           </p>
         </div>
-        <span className="count-badge mono-num">{scoredCompounds.length} compounds</span>
+        <span className="count-badge mono-num">{scoredCompounds.length} molecules</span>
       </div>
 
-      <div className="table-scroll" role="region" aria-label="Scrollable compound table" tabIndex={0}>
+      <div className="table-scroll" role="region" aria-label="Scrollable table of molecules" tabIndex={0}>
         <table className="data-table">
           <thead>
             <tr>
@@ -85,7 +87,7 @@ export const CompoundTable: React.FC<CompoundTableProps> = ({
                   </th>
                 );
               })}
-              <th className="compare-col-head">Radar</th>
+              <th className="compare-col-head">Compare</th>
             </tr>
           </thead>
           <tbody>
@@ -154,7 +156,7 @@ export const CompoundTable: React.FC<CompoundTableProps> = ({
                             : 'ro5-fail'
                         }`}
                       >
-                        {ro5.violations === 0 ? 'Pass' : `${ro5.violations} viol.`}
+                        {ro5.violations === 0 ? 'Pass' : `${ro5.violations} failed`}
                       </span>
                     </td>
                     <td>

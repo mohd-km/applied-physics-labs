@@ -15,7 +15,7 @@ export const BAND_DEFINITIONS: BandDefinition[] = [
     maxHz: 4,
     color: '#818cf8',
     inkColor: '#4338ca',
-    shortDesc: 'Deep sleep, drowsiness, slow-wave & ocular drift',
+    shortDesc: 'Very slow: deep sleep and drowsiness',
   },
   {
     key: 'theta',
@@ -25,7 +25,7 @@ export const BAND_DEFINITIONS: BandDefinition[] = [
     maxHz: 8,
     color: '#38bdf8',
     inkColor: '#0369a1',
-    shortDesc: 'Frontal midline working memory or internal drift',
+    shortDesc: 'Slow: holding things in mind, or drifting inward',
   },
   {
     key: 'alpha',
@@ -35,7 +35,7 @@ export const BAND_DEFINITIONS: BandDefinition[] = [
     maxHz: 13,
     color: '#34d399',
     inkColor: '#047857',
-    shortDesc: 'Cortical idling, sensory gating, relaxed alertness',
+    shortDesc: 'Medium: relaxed and awake, brain idling',
   },
   {
     key: 'beta',
@@ -45,7 +45,7 @@ export const BAND_DEFINITIONS: BandDefinition[] = [
     maxHz: 30,
     color: '#fbbf24',
     inkColor: '#b45309',
-    shortDesc: 'Active executive control, focused computation',
+    shortDesc: 'Fast: active thinking and focus',
   },
   {
     key: 'gamma',
@@ -55,7 +55,7 @@ export const BAND_DEFINITIONS: BandDefinition[] = [
     maxHz: 45,
     color: '#fb7185',
     inkColor: '#be123c',
-    shortDesc: 'Feature binding (heavily overlapped by scalp EMG)',
+    shortDesc: 'Very fast: hard to see, muscle noise hides it',
   },
 ];
 
@@ -99,7 +99,7 @@ export const COGNITIVE_PRESETS: Record<CognitiveStateId, CognitivePreset> = {
     id: 'deep-flow',
     name: 'Deep Flow (90-Min Block)',
     shortName: 'Deep Flow',
-    subtitle: 'Sustained low-beta lock with clean alpha-theta gating',
+    subtitle: 'Long, calm concentration: steady fast waves, few slow ones',
     signature:
       'Elevated low-beta (14-20 Hz), stable posterior alpha (10.5 Hz), low delta drift, positive left-frontal asymmetry (AF8 > AF7 alpha).',
     referenceSource: 'OpenNeuro resting vs sustained attention & flow-state spectral profiles',
@@ -124,7 +124,7 @@ export const COGNITIVE_PRESETS: Record<CognitiveStateId, CognitivePreset> = {
     id: 'mind-wandering',
     name: 'Mind Wandering (DMN Drift)',
     shortName: 'Mind Wandering',
-    subtitle: 'Default Mode Network takeover with beta collapse',
+    subtitle: 'Daydreaming: the brain idles and fast "busy" waves fade',
     signature:
       'Surging posterior alpha (9.8 Hz) and frontal theta (5-7 Hz), weak beta executive drive, elevated Theta/Beta ratio.',
     referenceSource: 'Public task-unrelated thought (TUT) & eyes-open idling EEG spectra',
@@ -149,7 +149,7 @@ export const COGNITIVE_PRESETS: Record<CognitiveStateId, CognitivePreset> = {
     id: 'high-load',
     name: 'High Cognitive Load (EEGMAT)',
     shortName: 'High Load',
-    subtitle: 'Serial mental arithmetic with alpha desynchronization',
+    subtitle: 'Hard mental maths: the relaxed alpha rhythm drops away',
     signature:
       'Strong alpha suppression (ERD), elevated frontal midline theta (6 Hz), high beta (16-28 Hz) and low-gamma activity.',
     referenceSource: 'EEGMAT PhysioNet (Zyma et al., 2019) & OpenNeuro ds003838 working memory',
@@ -174,7 +174,7 @@ export const COGNITIVE_PRESETS: Record<CognitiveStateId, CognitivePreset> = {
     id: 'fatigue',
     name: 'Fatigue (Vigilance Decrement)',
     shortName: 'Fatigue',
-    subtitle: 'Slow-wave intrusion and slowed alpha peak frequency',
+    subtitle: 'Tired: slow drowsy waves creep in and alpha slows down',
     signature:
       'Dominant delta (1-3.5 Hz) and theta (4-7 Hz), slowed alpha peak (~8.6 Hz), collapsed beta/gamma power, heavy slow-blink artifacts.',
     referenceSource: 'SEED-VIG vigilance decrement & prolonged driving/monitoring EEG studies',

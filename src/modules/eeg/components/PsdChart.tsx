@@ -52,26 +52,28 @@ export const PsdChart: React.FC<PsdChartProps> = ({
     <div className="panel">
       <div className="panel-header">
         <div>
-          <h2 className="panel-title">Live Power Spectral Density (Hann FFT)</h2>
+          <h2 className="panel-title">Which rhythms are strongest (power spectrum)</h2>
           <p className="panel-subtitle">
-            0.5 - {maxFreq} Hz Radix-2 FFT &middot; Toggle 50 Hz Notch or Bandpass to watch the
-            spectrum clean up
+            An FFT (Fast Fourier Transform) splits the wiggly signal into its rhythms: slow on the
+            left, fast on the right, taller means stronger. Shown from 0.5 to {maxFreq} Hz (beats
+            per second). The 50 Hz spike is electrical hum from the mains; switch on the hum
+            remover to watch it drop.
           </p>
         </div>
 
         <div className="inline-legend">
           <span className="legend-chip">
             <span className="legend-line" style={{ backgroundColor: '#111111' }} />
-            Filtered PSD
+            After filters
           </span>
           {anyFilterOn && (
             <span className="legend-chip">
               <span className="legend-line legend-line-dashed" />
-              Pre-Filter
+              Before filters
             </span>
           )}
           <span className="mono-badge">
-            50 Hz: {snapshot.mains50HzDb.toFixed(1)} dB
+            Hum at 50 Hz: {snapshot.mains50HzDb.toFixed(1)} dB
             {notchFilter50Hz && humDropDb > 2 ? ` (-${humDropDb.toFixed(0)} dB)` : ''}
           </span>
         </div>
@@ -184,7 +186,7 @@ export const PsdChart: React.FC<PsdChartProps> = ({
             fontFamily="JetBrains Mono, monospace"
             transform={`rotate(-90 14 ${padTop + plotH / 2})`}
           >
-            dB (uV^2/Hz)
+            strength, dB (uV^2/Hz)
           </text>
 
           {/* Frequency axis labels */}
@@ -230,6 +232,10 @@ export const PsdChart: React.FC<PsdChartProps> = ({
       </div>
 
       {/* Relative band power distribution */}
+      <p className="eeg-hint">
+        Share of brain activity in each named rhythm (band). dB (decibels) is a log scale: every
+        +10 dB is 10 times more power.
+      </p>
       <div className="band-summary-grid">
         {BAND_DEFINITIONS.map((band) => {
           const pct = snapshot.relativeBandPct[band.key];
@@ -251,6 +257,7 @@ export const PsdChart: React.FC<PsdChartProps> = ({
                   }}
                 />
               </div>
+              <span className="band-plain">{band.shortDesc}</span>
               <div className="band-stat-foot">
                 <span>{band.rangeLabel}</span>
                 <span>{absPower.toFixed(1)} &micro;V&sup2;</span>

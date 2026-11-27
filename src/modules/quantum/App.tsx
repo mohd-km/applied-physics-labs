@@ -50,15 +50,15 @@ export const App: React.FC = () => {
   const controlsSidebar = (
     <aside className="controls-column">
       <div className="panel control-panel">
-        <h2 className="card-title">NISQ Noise &amp; Circuit Controls</h2>
+        <h2 className="card-title">Noise and circuit controls</h2>
         <p className="card-subtitle">
-          Adjust 2-qubit gate error and ansatz depth to shift circuit fidelity live.
+          Today's quantum chips are noisy (NISQ: noisy, intermediate-scale quantum). Change how noisy each step is and how long the circuit is, and watch the answer get better or worse.
         </p>
 
         <div className="slider-group">
           <div className="slider-header">
             <label htmlFor="error-slider" className="slider-label">
-              2-Qubit Gate Error (p_2q)
+              Error per two-qubit step (p_2q)
             </label>
             <span className="slider-readout">{twoQubitErrorPct.toFixed(2)}%</span>
           </div>
@@ -72,6 +72,7 @@ export const App: React.FC = () => {
             onChange={(e) => setTwoQubitErrorPct(parseFloat(e.target.value))}
             className="range-input"
           />
+          <p className="q-hint">How often each operation that links the two qubits (quantum bits) goes wrong. Lower is better.</p>
           <div className="slider-ticks">
             <span>0.01%</span>
             <span>0.50%</span>
@@ -83,10 +84,10 @@ export const App: React.FC = () => {
         <div className="slider-group">
           <div className="slider-header">
             <label htmlFor="depth-slider" className="slider-label">
-              Ansatz Depth (Layers)
+              Circuit length (ansatz depth, layers)
             </label>
             <span className="slider-readout">
-              {circuitDepth} ({evalResult.totalTwoQubitGates} 2Q)
+              {circuitDepth} ({evalResult.totalTwoQubitGates} two-qubit steps)
             </span>
           </div>
           <input
@@ -99,6 +100,7 @@ export const App: React.FC = () => {
             onChange={(e) => setCircuitDepth(parseInt(e.target.value, 10))}
             className="range-input"
           />
+          <p className="q-hint">The ansatz is the adjustable circuit recipe the computer tunes. More layers means more steps, so more chances for errors to pile up.</p>
           <div className="slider-ticks">
             <span>2</span>
             <span>12</span>
@@ -107,7 +109,7 @@ export const App: React.FC = () => {
         </div>
 
         <div className="presets-block">
-          <span className="presets-label">Hardware Presets</span>
+          <span className="presets-label">Real hardware noise levels (presets)</span>
           <div className="presets-grid">
             {HARDWARE_PRESETS.map((preset) => {
               const isActive = Math.abs(twoQubitErrorPct - preset.errorRatePct) < 0.005;
@@ -129,13 +131,13 @@ export const App: React.FC = () => {
 
       <div className="panel inspector-panel">
         <div className="inspector-head">
-          <h2 className="card-title">Geometry Scrubber</h2>
-          <span className="mono-badge">R = {selectedPoint.r.toFixed(3)} A</span>
+          <h2 className="card-title">Pick a bond length</h2>
+          <span className="mono-badge">R = {selectedPoint.r.toFixed(3)} Å</span>
         </div>
 
         <div className="slider-group compact">
           <label htmlFor="bond-slider" className="slider-label">
-            Bond Length ({spec.formula})
+            Distance between the atoms, bond length ({spec.formula})
           </label>
           <input
             id="bond-slider"
@@ -149,25 +151,26 @@ export const App: React.FC = () => {
           />
         </div>
 
+        <p className="q-hint">Energies in Hartree (Ha), the natural unit of energy for atoms. Brackets show the miss from the exact answer in mHa (milli-Hartree, a thousandth of a Hartree). Under 1.6 mHa counts as chemical accuracy: good enough to predict real chemistry.</p>
         <dl className="metric-list">
           <div className="metric-row">
-            <dt>Exact FCI</dt>
+            <dt>Exact answer (FCI)</dt>
             <dd className="mono-val text-fci">{selectedPoint.fci.toFixed(5)} Ha</dd>
           </div>
           <div className="metric-row">
-            <dt>Hartree-Fock (RHF)</dt>
+            <dt>Quick classical estimate (Hartree-Fock)</dt>
             <dd className="mono-val text-rhf">
               {selectedPoint.rhf.toFixed(5)} Ha ({selectedPoint.rhfErrorMHa.toFixed(2)} mHa)
             </dd>
           </div>
           <div className="metric-row">
-            <dt>Noiseless VQE</dt>
+            <dt>Quantum, perfect chip (noiseless VQE)</dt>
             <dd className="mono-val text-ideal">
               {selectedPoint.vqeNoiseless.toFixed(5)} Ha ({selectedPoint.vqeNoiselessErrorMHa.toFixed(2)} mHa)
             </dd>
           </div>
           <div className="metric-row">
-            <dt>Noisy NISQ VQE</dt>
+            <dt>Quantum, noisy chip (noisy VQE)</dt>
             <dd className="mono-val text-noisy">
               {selectedPoint.vqeNoisy.toFixed(5)} Ha ({selectedPoint.vqeNoisyErrorMHa.toFixed(2)} mHa)
             </dd>
@@ -175,10 +178,10 @@ export const App: React.FC = () => {
         </dl>
 
         <details className="editorial-details compact-details">
-          <summary>Basis &amp; reference metadata</summary>
+          <summary>Model size and sources (basis set, active space)</summary>
           <div className="details-body">
-            <p><strong>Active Space:</strong> {spec.activeSpace}</p>
-            <p><strong>Reference:</strong> {spec.reference}</p>
+            <p><strong>Electrons and orbitals simulated (active space):</strong> {spec.activeSpace}</p>
+            <p><strong>Source:</strong> {spec.reference}</p>
           </div>
         </details>
       </div>
@@ -190,8 +193,8 @@ export const App: React.FC = () => {
       <header className="site-header">
         <div className="header-inner">
           <div className="brand-block">
-            <h2 className="module-heading">2-qubit VQE vs exact FCI</h2>
-            <p className="site-byline">Statevector VQE in your browser, scored against published STO-3G reference energies.</p>
+            <h2 className="module-heading">Can a small quantum computer get chemistry right?</h2>
+            <p className="site-byline">A simulated 2-qubit quantum computer runs VQE (a way to estimate a molecule's energy on a quantum computer) in your browser. Its answers are scored against published exact energies for the simple STO-3G model of each molecule (a small, standard set of building blocks for electron clouds).</p>
           </div>
 
           <div className="molecule-toggle" role="group" aria-label="Select molecule">
@@ -219,17 +222,17 @@ export const App: React.FC = () => {
         {/* Top KPI Telemetry Strip */}
         <section className="kpi-grid" aria-label="Live benchmark metrics">
           <div className="kpi-card">
-            <span className="kpi-label">Circuit Fidelity (F)</span>
+            <span className="kpi-label">Chance the circuit runs clean (fidelity, F)</span>
             <span className="kpi-value">
               {(evalResult.circuitFidelity * 100).toFixed(2)}%
             </span>
             <span className="kpi-sub">
-              {evalResult.totalTwoQubitGates} 2Q gates &middot; {spec.qubits}q active
+              {evalResult.totalTwoQubitGates} two-qubit steps &middot; {spec.qubits} qubits
             </span>
           </div>
 
           <div className="kpi-card">
-            <span className="kpi-label">Noisy VQE Err @ R_eq</span>
+            <span className="kpi-label">Noisy chip's miss at natural bond length</span>
             <span
               className={`kpi-value ${
                 evalResult.eqPoint.beatsChemicalAccuracy ? 'text-pass' : 'text-fail'
@@ -238,22 +241,22 @@ export const App: React.FC = () => {
               {evalResult.eqPoint.vqeNoisyErrorMHa.toFixed(2)} mHa
             </span>
             <span className="kpi-sub">
-              Cutoff: {CHEMICAL_ACCURACY_MHA.toFixed(1)} mHa
+              Goal: under {CHEMICAL_ACCURACY_MHA.toFixed(1)} mHa (chemical accuracy)
             </span>
           </div>
 
           <div className="kpi-card">
-            <span className="kpi-label">Max 2Q Err for 1.6 mHa</span>
+            <span className="kpi-label">Highest step error that still hits 1.6 mHa</span>
             <span className="kpi-value text-accent">
               {evalResult.maxAllowedErrorPctAtEq.toFixed(4)}%
             </span>
             <span className="kpi-sub">
-              Noise wall at depth {circuitDepth}
+              The noise wall at {circuitDepth} layers
             </span>
           </div>
 
           <div className="kpi-card">
-            <span className="kpi-label">Curve Within 1.6 mHa</span>
+            <span className="kpi-label">Bond lengths within 1.6 mHa</span>
             <span className="kpi-value">
               {Math.round(evalResult.fractionWithinChemAcc * 100)}%
             </span>
@@ -272,7 +275,7 @@ export const App: React.FC = () => {
             className={`tab-btn ${activeTab === 'simulator' ? 'tab-btn-active' : ''}`}
             onClick={() => setActiveTab('simulator')}
           >
-            Live VQE Simulator
+            Run the quantum circuit
           </button>
           <button
             type="button"
@@ -281,7 +284,7 @@ export const App: React.FC = () => {
             className={`tab-btn ${activeTab === 'pes' ? 'tab-btn-active' : ''}`}
             onClick={() => setActiveTab('pes')}
           >
-            Dissociation Curves (PES)
+            Energy vs bond length (PES)
           </button>
           <button
             type="button"
@@ -290,7 +293,7 @@ export const App: React.FC = () => {
             className={`tab-btn ${activeTab === 'data' ? 'tab-btn-active' : ''}`}
             onClick={() => setActiveTab('data')}
           >
-            Benchmark Data &amp; Verdict
+            Verdict and data table
           </button>
         </nav>
 
@@ -358,10 +361,10 @@ export const App: React.FC = () => {
               <div className="table-head-row">
                 <div>
                   <h2 id="table-heading" className="card-title">
-                    Published STO-3G Dissociation Table ({spec.formula})
+                    Energy at each bond length, published STO-3G values ({spec.formula})
                   </h2>
                   <p className="card-subtitle">
-                    Tap any row to set the active geometry across the simulator and PES charts.
+                    Energies in Hartree (Ha), errors in mHa. FCI is the exact answer, Hartree-Fock a quick classical estimate. Tap any row to use that bond length in the other views.
                   </p>
                 </div>
               </div>
@@ -370,14 +373,14 @@ export const App: React.FC = () => {
                 <table className="data-table">
                   <thead>
                     <tr>
-                      <th>R (A)</th>
-                      <th>Exact FCI (Ha)</th>
+                      <th>Bond length R (Å)</th>
+                      <th>Exact, FCI (Ha)</th>
                       <th>Hartree-Fock (Ha)</th>
                       <th>Noiseless VQE (Ha)</th>
                       <th>Noisy VQE (Ha)</th>
-                      <th>RHF Err (mHa)</th>
-                      <th>Noisy Err (mHa)</th>
-                      <th>1.6 mHa</th>
+                      <th>Hartree-Fock miss (mHa)</th>
+                      <th>Noisy VQE miss (mHa)</th>
+                      <th>Under 1.6 mHa?</th>
                     </tr>
                   </thead>
                   <tbody>
