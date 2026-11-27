@@ -22,6 +22,22 @@ export type ShellConfig = {
   footer: string;
 };
 
+class TabBoundary extends React.Component<{ children: React.ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return (
+      <div className="sh-wrap" style={{ padding: 40, color: '#555555' }}>
+        <p style={{ margin: '0 0 12px' }}>This lab hit an unexpected input and stopped. Reset it to start again.</p>
+        <button type="button" onClick={() => this.setState({ failed: false })} style={{ font: 'inherit', padding: '8px 14px', borderRadius: 8, border: '1px solid #d4d4d0', background: '#fff', cursor: 'pointer' }}>
+          Reset this lab
+        </button>
+      </div>
+    );
+  }
+}
+
 const lazyCache = new Map<string, React.LazyExoticComponent<React.ComponentType>>();
 function lazyFor(t: TabDef): React.ComponentType {
   if (t.component) return t.component;
@@ -141,9 +157,11 @@ export function Shell({ config }: { config: ShellConfig }) {
           const C = lazyFor(t);
           return (
             <section key={t.id} className={`sh-panel m-${t.scope}`} hidden={t.id !== active} role="tabpanel" aria-label={t.label}>
-              <Suspense fallback={<div className="sh-wrap" style={{ padding: 40, color: '#6b6b68' }}>Loading…</div>}>
-                <C />
-              </Suspense>
+              <TabBoundary>
+                <Suspense fallback={<div className="sh-wrap" style={{ padding: 40, color: '#6b6b68' }}>Loading…</div>}>
+                  <C />
+                </Suspense>
+              </TabBoundary>
             </section>
           );
         })}

@@ -1,0 +1,50 @@
+:root {
+  --nr-ink: #111111; --nr-ink-2: #555555; --nr-muted: #6b6b68; --nr-line: #e5e5e3; --nr-line-strong: #d4d4d0;
+  --nr-surface: #fafaf9; --nr-accent: #1d4ed8; --nr-accent-soft: #eff6ff; --nr-warm: #b45309;
+}
+.nr-page { max-width: 1360px; margin: 0 auto; padding: 4px 16px 24px; display: flex; flex-direction: column; gap: 20px; font-style: normal; }
+.nr-card { border: 1px solid var(--nr-line); border-radius: 10px; background: #fff; padding: 16px; min-width: 0; }
+.nr-card h2 { font-family: 'Caudex', Georgia, serif; font-weight: 700; font-size: 21px; line-height: 1.2; margin: 0 0 8px; color: var(--nr-ink); }
+.nr-lede { margin: 0 0 12px; color: var(--nr-ink-2); font-size: 14px; max-width: 960px; overflow-wrap: anywhere; }
+.nr-presets, .nr-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.nr-actions { margin: 12px 0 0; }
+.nr-btn { font: inherit; font-size: 13px; font-weight: 500; padding: 8px 12px; min-height: 40px; border: 1px solid var(--nr-line-strong); border-radius: 8px;
+  background: #fff; color: var(--nr-ink); cursor: pointer; text-align: left; max-width: 100%; white-space: normal; }
+.nr-btn:hover { background: var(--nr-surface); }
+.nr-btn.on { background: var(--nr-ink); border-color: var(--nr-ink); color: #fff; }
+.nr-btn:focus-visible, .nr-slider input:focus-visible { outline: 2px solid var(--nr-accent); outline-offset: 2px; }
+.nr-grid { display: grid; grid-template-columns: 1fr; gap: 16px; min-width: 0; }
+@media (min-width: 960px) { .nr-grid { grid-template-columns: 320px minmax(0, 1fr); } .nr-page { padding: 4px 28px 24px; } }
+.nr-controls { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.nr-slider { display: flex; flex-direction: column; gap: 4px; }
+.nr-slider label { display: flex; justify-content: space-between; gap: 8px; font-size: 13.5px; font-weight: 600; color: var(--nr-ink); }
+.nr-val { font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-weight: 500; font-size: 12.5px; color: var(--nr-accent); white-space: nowrap; }
+.nr-slider input[type='range'] { width: 100%; accent-color: var(--nr-ink); margin: 2px 0; }
+.nr-hint { font-size: 11.5px; color: var(--nr-muted); line-height: 1.35; }
+.nr-stats { display: grid; grid-template-columns: 1fr; gap: 8px; border-top: 1px solid var(--nr-line); padding-top: 12px; }
+.nr-stats > div { display: grid; grid-template-columns: 1fr auto; column-gap: 8px; align-items: baseline; }
+.nr-stats .nr-hint { grid-column: 1 / -1; }
+.nr-k { font-size: 13px; color: var(--nr-ink-2); }
+.nr-v { font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 15px; font-weight: 600; color: var(--nr-ink); }
+.nr-fig { margin: 0; min-width: 0; }
+.nr-fig svg { display: block; width: 100%; height: auto; background: var(--nr-surface); border: 1px solid var(--nr-line); border-radius: 8px; }
+.nr-fig svg.nr-small { margin-top: 10px; }
+.nr-fig figcaption { font-size: 12px; color: var(--nr-muted); margin-top: 6px; }
+.nr-gridline { stroke: #ececea; stroke-width: 1; }
+.nr-tick { font-family: 'Inter', sans-serif; font-size: 11px; fill: var(--nr-muted); }
+.nr-axis { font-family: 'Inter', sans-serif; font-size: 11.5px; fill: var(--nr-ink-2); }
+.nr-label { font-family: 'Inter', sans-serif; font-size: 11px; fill: var(--nr-ink-2); }
+.nr-label-th { font-family: 'Inter', sans-serif; font-size: 11px; fill: var(--nr-warm); }
+.nr-label-tonic { font-family: 'Inter', sans-serif; font-size: 11px; fill: var(--nr-accent); }
+.nr-stim { fill: #f1f5f9; }
+.nr-thresh { stroke: var(--nr-warm); stroke-width: 1.5; stroke-dasharray: 6 4; }
+.nr-rest { stroke: #a3a3a0; stroke-width: 1; stroke-dasharray: 3 4; }
+.nr-tonic { stroke: var(--nr-accent); stroke-width: 1.6; stroke-dasharray: 7 4; }
+.nr-event { stroke: #c4c4c0; stroke-width: 1; }
+.nr-trace { fill: none; stroke: var(--nr-ink); stroke-width: 1.6; stroke-linejoin: round; }
+.nr-trace-da { stroke-width: 2; }
+.nr-tonic-curve { fill: none; stroke: var(--nr-accent); stroke-width: 2; }
+.nr-dot { fill: var(--nr-accent); stroke: #fff; stroke-width: 2; }
+.nr-takeaway { margin: 14px 0 0; padding: 10px 14px; border-left: 3px solid var(--nr-ink); background: var(--nr-surface); border-radius: 6px;
+  font-size: 14px; color: var(--nr-ink); max-width: 960px; overflow-wrap: anywhere; }
+.nr-note { font-size: 12.5px; color: var(--nr-muted); margin: 0; max-width: 960px; }

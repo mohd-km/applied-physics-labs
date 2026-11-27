@@ -10,6 +10,7 @@ import quantumStory from './modules/quantum/story';
 import materialsStory from './modules/materials/story';
 import moleculesStory from './modules/molecules/story';
 import eegStory from './modules/eeg/story';
+import neuroStory from './modules/neuro/story';
 
 const T1 = 'engineering, energy & space';
 const T2 = 'matter & quantum';
@@ -19,7 +20,7 @@ const config: ShellConfig = {
   pillar: 'worldview & physics',
   title: 'Applied Physics & Deep-Tech Labs',
   subtitle:
-    'Seven hands-on simulators built from basic physics and chemistry: rockets, power grids, satellites, quantum chips, new materials, anti-ageing molecules and brainwaves. Move a slider and the maths reruns in your browser.',
+    'Eight hands-on simulators built from basic physics, chemistry and biology: rockets, power grids, satellites, quantum chips, new materials, anti-ageing molecules, brainwaves, and neurons and dopamine. Move a slider and the maths reruns in your browser.',
   footer: 'Applied Physics & Deep-Tech Labs · runs entirely in your browser · Mohammed KM',
   tabs: [
     {
@@ -58,6 +59,12 @@ const config: ShellConfig = {
       provenance: [{ kind: 'synthetic', label: 'simulated brainwaves & accuracy curves' }, { kind: 'model', label: 'rhythm splitting (FFT) & noise filters' }],
       note: 'uploaded CSVs stay in your browser',
       load: () => import('./modules/eeg/App'),
+    },
+    {
+      id: 'neuro', story: neuroStory, track: T3, label: 'Neurons & dopamine', sub: 'spikes · reward surprise', scope: 'neuro',
+      provenance: [{ kind: 'model', label: 'Leaky Integrate-and-Fire neuron (textbook model)' }, { kind: 'model', label: 'Schultz reward prediction error & opponent-process baseline' }],
+      note: 'teaching models, not clinical measurements',
+      load: () => import('./modules/neuro/App'),
     },
   ],
 };

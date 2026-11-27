@@ -2,15 +2,16 @@
 
 Live: https://labs.mohammed-km.in
 
-Seven first-principles simulators in one workbench across three tracks: engineering, energy and space; matter and quantum; bio and mind.
+Eight first-principles simulators in one workbench across three tracks: engineering, energy and space; matter and quantum; bio and mind.
 
-Merges seven labs: engineering, power grid, orbital mechanics, quantum molecule benchmark, AI materials screener, longevity molecules and EEG focus decoder. Each old subdomain redirects to its tab.
+Merges eight labs: engineering, power grid, orbital mechanics, quantum molecule benchmark, AI materials screener, longevity molecules, EEG focus decoder and neurons & dopamine. Each old subdomain redirects to its tab.
 
 ## Modules
 
 - **engineering · grid · orbits**: Idiot Index BOM, an 8-station factory game and Tsiolkovsky rocket $/kg; a 24-hour duck curve with AC vs HVDC I²R losses; animated LEO/MEO/GEO orbits with a Shannon link budget.
 - **quantum · materials**: Live 2-qubit VQE optimiser on H2 and LiH with a noise threshold; crystal band-gap and energy-above-hull Pareto screener with CSV export.
 - **molecules · eeg**: Small-molecule longevity triage with a 2-molecule radar diff; 4-channel EEG waveforms with live FFT bandpass and notch filters and local CSV upload.
+- **neuro**: Leaky Integrate-and-Fire spiking neuron (current, threshold, leak; live voltage trace, firing rate, time to first spike) and a dopamine reward-prediction-error lab (phasic bursts and dips, tonic baseline tolerance over 30 days, Markdown/CSV export). Textbook teaching models, not clinical measurements.
 
 Tabs are deep-linkable, e.g. `https://labs.mohammed-km.in/`.
 
