@@ -1,6 +1,8 @@
 # Applied Physics & Deep-Tech Labs
 
-Live: https://labs.mohammed-km.in
+Live: https://labs.mohammed-km.in (now redirects)
+
+> Split on 28 November 2026 into three single-subject labs: [Engineering, Energy & Space Lab](https://engineering.mohammed-km.in) (repo first-principles-lab), [Quantum & Materials Lab](https://quantum.mohammed-km.in) (repo quantum-molecule-benchmark) and [Neuroscience & Bio Lab](https://neuro.mohammed-km.in) (repo neuroscience-bio-lab). labs.mohammed-km.in now redirects to the engineering lab. This repo keeps the eight-module history.
 
 Eight first-principles simulators in one workbench across three tracks: engineering, energy and space; matter and quantum; bio and mind.
 
